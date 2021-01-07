@@ -6,26 +6,20 @@ import java.awt.image.BufferedImage;
 
 import javax.imageio.ImageIO;
 
-public class Projectile extends GameObject {
+public class AlienLeader {
 	public static BufferedImage image;
 	public static boolean needImage = true;
 	public static boolean gotImage = false;
-	public Projectile(int x, int y, int width, int height) {
-		super(x, y, width, height);
-		this.speed = 10;
+	public AlienLeader() {
 		if (needImage) {
-		    loadImage ("bullet.png");
+		    loadImage ("alien_leader.png");
 		}
 	}
-	public void update() {
-		super.update();
-		y-=speed;
-	}
-	public void draw(Graphics g) {
+	public void draw(Graphics g, int x, int y, int width, int height) {
 		if (gotImage) {
 			g.drawImage(image, x, y, width, height, null);
 		} else {
-			g.setColor(Color.RED);
+			g.setColor(new Color(121, 52, 171));
 			g.fillRect(x, y, width, height);
 		}
 	}
@@ -40,4 +34,5 @@ public class Projectile extends GameObject {
 	        needImage = false;
 	    }
 	}
+
 }

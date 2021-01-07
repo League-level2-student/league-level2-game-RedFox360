@@ -3,9 +3,10 @@ package level_2_Game;
 import java.awt.Dimension;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 public class AlienInvasion {
-	JFrame frame;
+	static JFrame frame;
 	GamePanel panel;
 	public static final int WIDTH = 800;
 	public static final int HEIGHT = 800;
@@ -23,6 +24,7 @@ public class AlienInvasion {
 		frame.add(panel);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.addKeyListener(panel);
+		frame.setResizable(false);
 	}
 	
 }
