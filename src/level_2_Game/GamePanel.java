@@ -47,12 +47,12 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		frameDraw = new Timer(1000 / 60, this);
 		scoreFont = new Font("Consolas", Font.PLAIN, 18);
 		frameDraw.start();
-		projectileTimer = new Timer(1000, this);
+		projectileTimer = new Timer(500, this);
 		projectileTimer.start();
 		rocketShip = new Rocketship(400, 700, 60, 60, 20);
 		car = new Car(700, 700, 100, 100);
 		manager1 = new ObjectManagerP1(rocketShip);
-		manager2 = new ObjectManagerP2(car, manager1.getScore());
+		manager2 = new ObjectManagerP2(car);
 		if (needImage) {
 			loadImage("UFO.png");
 		}
@@ -113,9 +113,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			g.setColor(Color.BLACK);
 			g.drawRect(0, 0, AlienInvasion.WIDTH, AlienInvasion.HEIGHT);
 		}
+	}
+	public void drawDialog() {
 		if (!dialogDrawn) {
-			JOptionPane.showMessageDialog(this,
-					"The Alien leader sees that you are a great warrior, but he will not leave Earth until you answer his riddle.");
+			JOptionPane.showMessageDialog(this, "The alien leader sees that you are a great warrior, but he will not leave Earth alone until you prove your intelligence.");
 			dialogDrawn = true;
 		}
 	}
@@ -154,6 +155,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			manager1.speed = 1;
 			manager2.speed = 1;
 			manager2.aliens.clear();
+			manager2.setScore(manager1.getScore());
 			if (car.isActive == false) {
 				car = new Car(700, 700, 100, 100);
 			}
@@ -228,7 +230,6 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		}
 		if (arg0.getKeyCode() == KeyEvent.VK_DOWN) {
 			if (currentState == GAME && rocketShip.y < AlienInvasion.HEIGHT - 60) {
-				System.out.println("DOWN");
 				rocketShip.down();
 			} else if (currentState == GAME2 && car.y < AlienInvasion.HEIGHT - 100) {
 				car.down();

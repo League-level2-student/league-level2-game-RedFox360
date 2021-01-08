@@ -33,9 +33,9 @@ public class ObjectManagerP1 implements ActionListener {
 		if (needImage) {
 			loadImage("space.png");
 		}
-		alienSpawn = new Timer(1500, this);
+		alienSpawn = new Timer(1000, this);
 		alienSpawn.start();
-		asteroidSpawn = new Timer(5000, this);
+		asteroidSpawn = new Timer(6000, this);
 		asteroidSpawn.start();
 		increaseSpeed = new Timer(10000, this);
 		increaseSpeed.start();

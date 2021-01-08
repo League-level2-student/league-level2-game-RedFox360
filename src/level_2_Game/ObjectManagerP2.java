@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
 public class ObjectManagerP2 implements ActionListener {
@@ -17,25 +18,28 @@ public class ObjectManagerP2 implements ActionListener {
 	public static boolean needImage = true;
 	public static boolean gotImage = false;
 	Car car;
-	int speed = 1;
+	int speed;
 	int score;
-	int aliensSpawned;
+	int aliensKilled = 0;
 	int aliensWhoGotAway = 0;
 	Timer increaseSpeed;
 	Timer alienSpawn;
 	Random random = new Random();
 	ArrayList<Alien2> aliens =  new ArrayList<Alien2>();
 	ArrayList<Bullet> bullets = new ArrayList<Bullet>();
-	public ObjectManagerP2(Car c, int score) {
+	public ObjectManagerP2(Car c) {
 		car = c;
-		this.score = score;
 		alienSpawn = new Timer(1000, this);
-		increaseSpeed = new Timer(15000, this);
+		increaseSpeed = new Timer(30000, this);
 		increaseSpeed.start();
 		alienSpawn.start();
+		speed = 1;
 		if (needImage) {
 		    loadImage ("phase2background.jpg");
 		}
+	}
+	void setScore(int score) {
+		this.score = score;
 	}
 	public void clearAll() {
 		for (int i = aliens.size() - 1; i >= 0; i++) {
@@ -87,10 +91,17 @@ public class ObjectManagerP2 implements ActionListener {
 		if (aliensWhoGotAway >= 20) { 
 			GamePanel.endText = "Too many Aliens slipped away!";
 			car.isActive = false;
-			GamePanel.currentState = GamePanel.GAME3;
-		}
-		if (aliensSpawned >= 1) {
 			GamePanel.currentState++;
+		}
+		if (aliensKilled >= 20) {
+			car.isActive = false;
+			GamePanel.currentState++;
+			JOptionPane.showMessageDialog(null, "The alien leader sees you are a great warrior, but he will not leave Earth alone until you prove your intelligence.");
+			String riddleGuess = JOptionPane.showInputDialog(null, "Which is better? Java or Python");
+			if (riddleGuess.equalsIgnoreCase("java") || riddleGuess.equalsIgnoreCase("python")) {
+				JOptionPane.showMessageDialog(null, "Correct!");
+				GamePanel.currentState = GamePanel.WON;
+			}
 		}
 		checkCollision();
 		purgeObjects();
@@ -130,6 +141,7 @@ public class ObjectManagerP2 implements ActionListener {
 					projectile.isActive = false;
 					alien.isActive = false;
 					score += 1;
+					aliensKilled += 1;
 				}
 			}
 		}
@@ -152,7 +164,6 @@ public class ObjectManagerP2 implements ActionListener {
 		}
 		if (arg0.getSource() == alienSpawn) {
 			addAlien();
-			aliensSpawned += 1;
 		}
 	}
 
