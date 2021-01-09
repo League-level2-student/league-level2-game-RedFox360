@@ -30,7 +30,7 @@ public class ObjectManagerP2 implements ActionListener {
 	public ObjectManagerP2(Car c) {
 		car = c;
 		alienSpawn = new Timer(1000, this);
-		increaseSpeed = new Timer(30000, this);
+		increaseSpeed = new Timer(20000, this);
 		increaseSpeed.start();
 		alienSpawn.start();
 		speed = 1;
@@ -101,6 +101,9 @@ public class ObjectManagerP2 implements ActionListener {
 			if (riddleGuess.equalsIgnoreCase("java") || riddleGuess.equalsIgnoreCase("python")) {
 				JOptionPane.showMessageDialog(null, "Correct!");
 				GamePanel.currentState = GamePanel.WON;
+			} else {
+				GamePanel.endText = "You answered the riddle incorrectly...";
+				GamePanel.currentState = GamePanel.END;
 			}
 		}
 		checkCollision();

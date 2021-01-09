@@ -37,7 +37,7 @@ public class ObjectManagerP1 implements ActionListener {
 		alienSpawn.start();
 		asteroidSpawn = new Timer(6000, this);
 		asteroidSpawn.start();
-		increaseSpeed = new Timer(10000, this);
+		increaseSpeed = new Timer(20000, this);
 		increaseSpeed.start();
 	}
 
