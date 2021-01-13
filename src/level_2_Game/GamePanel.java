@@ -33,11 +33,12 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	Font normalFont;
 	Font scoreFont;
 	Timer frameDraw;
-	Timer projectileTimer;
-	boolean useProjectile = false;
+	static Timer projectileTimer;
+	static boolean useProjectile = false;
 	boolean dialogDrawn = false;
 	public static Rocketship rocketShip;
 	public static Car car;
+	static int timerLength = 500;
 	ObjectManagerP1 manager1;
 	ObjectManagerP2 manager2;
 
@@ -47,7 +48,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		frameDraw = new Timer(1000 / 60, this);
 		scoreFont = new Font("Consolas", Font.PLAIN, 18);
 		frameDraw.start();
-		projectileTimer = new Timer(500, this);
+		projectileTimer = new Timer(timerLength, this);
 		projectileTimer.start();
 		rocketShip = new Rocketship(400, 700, 60, 60, 20);
 		car = new Car(700, 700, 100, 100);
@@ -70,11 +71,16 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			drawGame3State(g);
 		} else if (currentState == END) {
 			drawEndState(g);
-		} else if (currentState == WON) {
+		} else {
+			System.out.println(currentState);
 			drawWonState(g);
 		}
 	}
-
+	public static void halfTimer() {
+		useProjectile = true;
+		timerLength /= 2;
+		projectileTimer.setDelay(timerLength);
+	}
 	public void drawMenuState(Graphics g) {
 		g.setColor(Color.BLUE);
 		g.fillRect(0, 0, AlienInvasion.WIDTH, AlienInvasion.HEIGHT);
@@ -85,7 +91,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		g.drawString("Press ENTER to start", 250, 400);
 		g.drawString("Press SPACE for instructions", 200, 600);
 	}
-	//test
+	
 	public void drawGameState(Graphics g) {
 		manager1.draw(g);
 		g.setColor(Color.BLUE);
@@ -155,10 +161,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			manager1.speed = 1;
 			manager2.speed = 1;
 			manager2.aliens.clear();
+			manager1.powerups.clear();
+			manager2.powerups.clear();
 			manager2.setScore(manager1.getScore());
-			if (car.isActive == false) {
-				car = new Car(700, 700, 100, 100);
-			}
+			timerLength = 500;
+			projectileTimer.setDelay(timerLength);
 		}
 	}
 
@@ -195,13 +202,15 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 				endText = "";
 				rocketShip = new Rocketship(400, 700, 60, 60, 20);
 				car = new Car(700, 700, 100, 100);
+				manager1 = new ObjectManagerP1(rocketShip);
+				manager2 = new ObjectManagerP2(car);
 				manager1.aliens.clear();
 				manager1.projectiles.clear();
 				manager1.asteroids.clear();
 				manager2.aliens.clear();
+				manager1.powerups.clear();
+				manager2.powerups.clear();
 				manager2.bullets.clear();
-				rocketShip = new Rocketship(400, 700, 60, 60, 20);
-				car = new Car(700, 700, 100, 100);
 				currentState = MENU;
 			} else if (currentState == MENU) {
 				currentState = GAME;
@@ -221,28 +230,28 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 				currentState--;
 			}
 		}
-		if (arg0.getKeyCode() == KeyEvent.VK_UP) {
+		if (arg0.getKeyCode() == KeyEvent.VK_UP || arg0.getKeyChar() == 'w') {
 			if (currentState == GAME && rocketShip.y > 0) {
 				rocketShip.up();
 			} else if (currentState == GAME2 && car.y > 0) {
 				car.up();
 			}
 		}
-		if (arg0.getKeyCode() == KeyEvent.VK_DOWN) {
+		if (arg0.getKeyCode() == KeyEvent.VK_DOWN || arg0.getKeyChar() == 's') {
 			if (currentState == GAME && rocketShip.y < AlienInvasion.HEIGHT - 60) {
 				rocketShip.down();
 			} else if (currentState == GAME2 && car.y < AlienInvasion.HEIGHT - 100) {
 				car.down();
 			}
 		}
-		if (arg0.getKeyCode() == KeyEvent.VK_LEFT) {
+		if (arg0.getKeyCode() == KeyEvent.VK_LEFT || arg0.getKeyChar() == 'a') {
 			if (currentState == GAME && rocketShip.x > 0) {
 				rocketShip.left();
 			} else if (currentState == GAME2 && car.x > 0) {
 				car.left();
 			}
 		}
-		if (arg0.getKeyCode() == KeyEvent.VK_RIGHT) {
+		if (arg0.getKeyCode() == KeyEvent.VK_RIGHT || arg0.getKeyChar() == 'd') {
 			if (currentState == GAME && rocketShip.x < AlienInvasion.WIDTH - 60) {
 				rocketShip.right();
 			} else if (currentState == GAME2 && car.x < AlienInvasion.WIDTH - 100) {
@@ -254,6 +263,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 				manager1.addProjectile(rocketShip.getProjectile());
 			} else if (currentState == GAME2) {
 				manager2.addBullet(car.getBullet());
+			} else if (currentState == MENU) {
+				JOptionPane.showMessageDialog(null, "CONTROLS: Press the arrow keys or use WASD to move around. Use space to shoot projectiles at aliens.\n"
+						+ "GOAL: Battle aliens in space and on Earth, and when you finish, answer a riddle to win the game.\n"
+						+ "Developed by Sameer Prakash 2020\n"
+						+ "View code on Github: https://github.com/League-level2-student/league-level2-game-RedFox360");
 			}
 			useProjectile = false;
 		}

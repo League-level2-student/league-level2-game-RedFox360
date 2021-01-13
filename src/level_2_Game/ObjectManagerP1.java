@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
 public class ObjectManagerP1 implements ActionListener {
@@ -24,9 +25,11 @@ public class ObjectManagerP1 implements ActionListener {
 	ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
 	ArrayList<Alien> aliens = new ArrayList<Alien>();
 	ArrayList<Asteroid> asteroids = new ArrayList<Asteroid>();
+	ArrayList<TimerPowerup> powerups = new ArrayList<TimerPowerup>();
 	Random random = new Random();
 	Timer increaseSpeed;
 	Timer asteroidSpawn;
+	Timer powerupSpawn;
 
 	ObjectManagerP1(Rocketship r) {
 		rocketShip = r;
@@ -39,6 +42,8 @@ public class ObjectManagerP1 implements ActionListener {
 		asteroidSpawn.start();
 		increaseSpeed = new Timer(20000, this);
 		increaseSpeed.start();
+		powerupSpawn = new Timer(15000, this);
+		powerupSpawn.start();
 	}
 
 	void addAlien() {
@@ -53,6 +58,9 @@ public class ObjectManagerP1 implements ActionListener {
 		asteroids.add(new Asteroid(random.nextInt(AlienInvasion.WIDTH), 0, 80, 80));
 	}
 
+	void addPowerup() {
+		powerups.add(new TimerPowerup(random.nextInt(AlienInvasion.WIDTH), random.nextInt(AlienInvasion.HEIGHT), 100, 100));
+	}
 
 	public void update() {
 		for (Iterator<Alien> iterator = aliens.iterator(); iterator.hasNext();) {
@@ -78,6 +86,10 @@ public class ObjectManagerP1 implements ActionListener {
 				asteroid.isActive = false;
 			}
 		}
+		for (Iterator<TimerPowerup> iterator = powerups.iterator(); iterator.hasNext();) {
+			iterator.next().update();
+		}
+
 		rocketShip.update();
 		checkCollision();
 		purgeObjects();
@@ -113,6 +125,9 @@ public class ObjectManagerP1 implements ActionListener {
 		for (Iterator<Asteroid> iterator = asteroids.iterator(); iterator.hasNext();) {
 			iterator.next().draw(g);
 		}
+		for (Iterator<TimerPowerup> iterator = powerups.iterator(); iterator.hasNext();) {
+			iterator.next().draw(g);
+		}
 	}
 
 	public void purgeObjects() {
@@ -132,6 +147,12 @@ public class ObjectManagerP1 implements ActionListener {
 			Asteroid asteroid = asteroids.get(i);
 			if (!asteroid.isActive) {
 				asteroids.remove(i);
+			}
+		}
+		for (int i = powerups.size() - 1; i >= 0; i--) {
+			TimerPowerup powerup = powerups.get(i);
+			if (!powerup.isActive) {
+				powerups.remove(i);
 			}
 		}
 	}
@@ -182,6 +203,13 @@ public class ObjectManagerP1 implements ActionListener {
 				}
 			}
 		}
+		for (Iterator<TimerPowerup>iterator = powerups.iterator(); iterator.hasNext();) {
+			TimerPowerup powerup = iterator.next();
+			if (powerup.collisionBox.intersects(rocketShip.collisionBox)) {
+				powerup.isActive = false;
+				GamePanel.halfTimer();
+			}
+		}
 	}
 
 	@Override
@@ -194,6 +222,9 @@ public class ObjectManagerP1 implements ActionListener {
 		}
 		if (arg0.getSource() == asteroidSpawn) {
 			addAsteroid();
+		}
+		if (arg0.getSource() == powerupSpawn) {
+			addPowerup();
 		}
 	}
 }

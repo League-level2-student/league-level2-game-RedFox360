@@ -24,9 +24,12 @@ public class ObjectManagerP2 implements ActionListener {
 	int aliensWhoGotAway = 0;
 	Timer increaseSpeed;
 	Timer alienSpawn;
+	Timer powerupSpawn;
 	Random random = new Random();
-	ArrayList<Alien2> aliens =  new ArrayList<Alien2>();
+	ArrayList<Alien2> aliens = new ArrayList<Alien2>();
 	ArrayList<Bullet> bullets = new ArrayList<Bullet>();
+	ArrayList<TimerPowerup> powerups = new ArrayList<TimerPowerup>();
+
 	public ObjectManagerP2(Car c) {
 		car = c;
 		alienSpawn = new Timer(1000, this);
@@ -34,13 +37,22 @@ public class ObjectManagerP2 implements ActionListener {
 		increaseSpeed.start();
 		alienSpawn.start();
 		speed = 1;
+		powerupSpawn = new Timer(15000, this);
+		powerupSpawn.start();
 		if (needImage) {
-		    loadImage ("phase2background.jpg");
+			loadImage("phase2background.jpg");
 		}
 	}
+
+	void addPowerup() {
+		powerups.add(
+				new TimerPowerup(random.nextInt(AlienInvasion.WIDTH), random.nextInt(AlienInvasion.HEIGHT), 100, 100));
+	}
+
 	void setScore(int score) {
 		this.score = score;
 	}
+
 	public void clearAll() {
 		for (int i = aliens.size() - 1; i >= 0; i++) {
 			aliens.remove(i);
@@ -49,12 +61,15 @@ public class ObjectManagerP2 implements ActionListener {
 			bullets.remove(i);
 		}
 	}
+
 	int getScore() {
 		return score;
 	}
+
 	int getSpeed() {
 		return speed;
 	}
+
 	public void draw(Graphics g) {
 		if (gotImage) {
 			g.drawImage(image, 0, 0, AlienInvasion.WIDTH, AlienInvasion.HEIGHT, null);
@@ -63,13 +78,17 @@ public class ObjectManagerP2 implements ActionListener {
 			g.fillRect(0, 0, AlienInvasion.WIDTH, AlienInvasion.HEIGHT);
 		}
 		car.draw(g);
-		for(Iterator<Alien2> iterator = aliens.iterator(); iterator.hasNext();) {
+		for (Iterator<Alien2> iterator = aliens.iterator(); iterator.hasNext();) {
 			iterator.next().draw(g);
 		}
-		for(Iterator<Bullet> iterator = bullets.iterator(); iterator.hasNext();) {
+		for (Iterator<Bullet> iterator = bullets.iterator(); iterator.hasNext();) {
+			iterator.next().draw(g);
+		}
+		for (Iterator<TimerPowerup> iterator = powerups.iterator(); iterator.hasNext();) {
 			iterator.next().draw(g);
 		}
 	}
+
 	public void update() {
 		for (Iterator<Alien2> iterator = aliens.iterator(); iterator.hasNext();) {
 			Alien2 alien = iterator.next();
@@ -87,8 +106,11 @@ public class ObjectManagerP2 implements ActionListener {
 				score += 1;
 			}
 		}
+		for (Iterator<TimerPowerup> iterator = powerups.iterator(); iterator.hasNext();) {
+			iterator.next().update();
+		}
 		car.update();
-		if (aliensWhoGotAway >= 20) { 
+		if (aliensWhoGotAway >= 20) {
 			GamePanel.endText = "Too many Aliens slipped away!";
 			car.isActive = false;
 			GamePanel.currentState++;
@@ -96,21 +118,25 @@ public class ObjectManagerP2 implements ActionListener {
 		if (aliensKilled >= 20) {
 			car.isActive = false;
 			GamePanel.currentState++;
-			JOptionPane.showMessageDialog(null, "The alien leader sees you are a great warrior, but he will not leave Earth alone until you prove your intelligence.");
-			String riddleGuess = JOptionPane.showInputDialog(null, "Which is better? Java or Python");
-			if (riddleGuess.equalsIgnoreCase("java") || riddleGuess.equalsIgnoreCase("python")) {
-				JOptionPane.showMessageDialog(null, "Correct!");
-				GamePanel.currentState = GamePanel.WON;
+			String[] options = { "Java", "Python", "C++", "C", "Swift", "Javascript" };
+			JOptionPane.showMessageDialog(null,
+					"The alien leader sees you are a great warrior, but he will not leave Earth alone until you prove your intelligence.");
+			int x = JOptionPane.showOptionDialog(null, "What is the best coding language?", "Click a button",
+					JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
+			if (x == 0 || x == 1) {
+				JOptionPane.showMessageDialog(null, "You're correct!");
+				GamePanel.currentState++;
 			} else {
-				GamePanel.endText = "You answered the riddle incorrectly...";
+				GamePanel.endText = "You answered the question incorrectly";
 				GamePanel.currentState = GamePanel.END;
 			}
 		}
 		checkCollision();
 		purgeObjects();
 	}
+
 	public void purgeObjects() {
-		for(int i = aliens.size() - 1; i >= 0; i--) {
+		for (int i = aliens.size() - 1; i >= 0; i--) {
 			Alien2 alien = aliens.get(i);
 			if (!alien.isActive) {
 				aliens.remove(i);
@@ -122,13 +148,22 @@ public class ObjectManagerP2 implements ActionListener {
 				bullets.remove(i);
 			}
 		}
+		for (int i = powerups.size() - 1; i >= 0; i--) {
+			TimerPowerup powerup = powerups.get(i);
+			if (!powerup.isActive) {
+				powerups.remove(i);
+			}
+		}
 	}
+
 	public void addAlien() {
 		aliens.add(new Alien2(0, random.nextInt(AlienInvasion.WIDTH), 50, 50, speed));
 	}
+
 	public void addBullet(Bullet b) {
 		bullets.add(b);
 	}
+
 	public void checkCollision() {
 		for (Iterator<Alien2> iterator = aliens.iterator(); iterator.hasNext();) {
 			Alien2 alien = iterator.next();
@@ -148,25 +183,37 @@ public class ObjectManagerP2 implements ActionListener {
 				}
 			}
 		}
+		for (Iterator<TimerPowerup>iterator = powerups.iterator(); iterator.hasNext();) {
+			TimerPowerup powerup = iterator.next();
+			if (powerup.collisionBox.intersects(car.collisionBox)) {
+				powerup.isActive = false;
+				GamePanel.halfTimer();
+			}
+		}
 	}
+
 	void loadImage(String imageFile) {
-	    if (needImage) {
-	        try {
-	            image = ImageIO.read(this.getClass().getResourceAsStream(imageFile));
-		    gotImage = true;
-	        } catch (Exception e) {
-	            
-	        }
-	        needImage = false;
-	    }
+		if (needImage) {
+			try {
+				image = ImageIO.read(this.getClass().getResourceAsStream(imageFile));
+				gotImage = true;
+			} catch (Exception e) {
+
+			}
+			needImage = false;
+		}
 	}
+
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		if(arg0.getSource() == increaseSpeed) {
-			speed+=1;
+		if (arg0.getSource() == increaseSpeed) {
+			speed += 1;
 		}
 		if (arg0.getSource() == alienSpawn) {
 			addAlien();
+		}
+		if (arg0.getSource() == powerupSpawn) {
+			addPowerup();
 		}
 	}
 
