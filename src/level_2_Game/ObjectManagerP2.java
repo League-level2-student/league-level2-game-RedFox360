@@ -130,6 +130,10 @@ public class ObjectManagerP2 implements ActionListener {
 				GamePanel.endText = "You answered the question incorrectly";
 			}
 		}
+		int counter;
+		for(counter = 1; counter <= 10; counter++) {
+			
+		}
 		checkCollision();
 		purgeObjects();
 	}

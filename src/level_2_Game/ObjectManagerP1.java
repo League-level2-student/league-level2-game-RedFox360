@@ -57,7 +57,7 @@ public class ObjectManagerP1 implements ActionListener {
 	void addAlien() {
 		aliens.add(new Alien(random.nextInt(AlienInvasion.WIDTH), 0, 50, 50, speed));
 	}
-	
+
 	void addPowerfulAlien() {
 		powerfulAliens.add(new PowerfulAlien(random.nextInt(AlienInvasion.WIDTH), 0, 50, 50, speed));
 	}
@@ -114,14 +114,19 @@ public class ObjectManagerP1 implements ActionListener {
 		}
 		for (Iterator<PowerfulAlienBullet> iterator = powerfulAliensBullets.iterator(); iterator.hasNext();) {
 			PowerfulAlienBullet bullet = iterator.next();
-			if (bullet.y > AlienInvasion.HEIGHT) { 
-				
+			bullet.update();
+			if (bullet.y > AlienInvasion.HEIGHT) {
+				bullet.isActive = false;
 			}
 		}
 
 		rocketShip.update();
 		checkCollision();
 		purgeObjects();
+	}
+
+	void dialog() {
+		JOptionPane.showMessageDialog(null, "Your car was hit! It's falling back down to Earth...");
 	}
 
 	int getScore() {
@@ -223,6 +228,7 @@ public class ObjectManagerP1 implements ActionListener {
 			if (rocketShip.collisionBox.intersects(alien.collisionBox)) {
 				rocketShip.isActive = false;
 				alien.isActive = false;
+
 			}
 			for (Iterator<Projectile> jterator = projectiles.iterator(); jterator.hasNext();) {
 				Projectile projectile = jterator.next();
@@ -246,6 +252,7 @@ public class ObjectManagerP1 implements ActionListener {
 				}
 				if (asteroid.collisionBox.intersects(rocketShip.collisionBox)) {
 					rocketShip.isActive = false;
+
 					GamePanel.endText = "Your rocket was hit by an asteroid";
 					GamePanel.currentState = GamePanel.END - 1;
 				}
@@ -262,24 +269,26 @@ public class ObjectManagerP1 implements ActionListener {
 			PowerfulAlien alien = iterator.next();
 			if (alien.collisionBox.intersects(rocketShip.collisionBox)) {
 				rocketShip.isActive = false;
+
 				GamePanel.endText = "Your rocket was hit by a powerful alien.";
 				GamePanel.currentState = GamePanel.END - 1;
 			}
 			for (Iterator<Projectile> jterator = projectiles.iterator(); jterator.hasNext();) {
-				Projectile projectile = jterator.next(); 
+				Projectile projectile = jterator.next();
 				if (alien.collisionBox.intersects(projectile.collisionBox)) {
 					alien.isActive = false;
 					projectile.isActive = false;
 				}
 			}
 		}
-		for (Iterator<PowerfulAlienBullet> iterator = powerfulAliensBullets.iterator();iterator.hasNext();) {
+		for (Iterator<PowerfulAlienBullet> iterator = powerfulAliensBullets.iterator(); iterator.hasNext();) {
 			PowerfulAlienBullet bullet = iterator.next();
 			if (bullet.collisionBox.intersects(rocketShip.collisionBox)) {
 				rocketShip.isActive = false;
+
 			}
 			for (Iterator<Projectile> jterator = projectiles.iterator(); jterator.hasNext();) {
-				Projectile projectile = jterator.next(); 
+				Projectile projectile = jterator.next();
 				if (bullet.collisionBox.intersects(projectile.collisionBox)) {
 					projectile.isActive = false;
 				}

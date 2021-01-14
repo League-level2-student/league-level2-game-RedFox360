@@ -13,7 +13,7 @@ public class PowerfulAlienBullet extends GameObject {
 	
 	public PowerfulAlienBullet(int x, int y, int width, int height) {
 		super(x, y, width, height);
-		this.speed = 7;
+		this.speed = 5;
 		if (needImage) {
 			loadImage("powerful_alien_bullet.png");
 		}

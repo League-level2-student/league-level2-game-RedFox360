@@ -144,6 +144,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		g.setFont(normalFont);
 		g.drawString(endText, 200, 250);
 		g.drawString("The world is doomed...", 250, 400);
+		g.drawString("Your final score is " + manager2.getScore(), 250, 500);
 		g.drawString("Press ENTER to restart", 250, 600);
 	}
 
@@ -155,6 +156,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		g.drawString("You Won!", 300, 200);
 		g.setFont(normalFont);
 		g.drawString("Thanks for playing Alien Invasion!", 200, 400);
+		g.drawString("Your final score is " + manager2.getScore(), 250, 500);
 		g.drawString("Press ENTER to restart", 250, 600);
 	}
 
@@ -206,6 +208,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		manager1.aliens.clear();
 		manager1.projectiles.clear();
 		manager1.asteroids.clear();
+		manager1.powerfulAliens.clear();
+		manager1.powerfulAliensBullets.clear();
 		manager2.aliens.clear();
 		manager1.powerups.clear();
 		manager2.powerups.clear();
