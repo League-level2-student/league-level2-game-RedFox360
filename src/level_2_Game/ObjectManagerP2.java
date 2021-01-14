@@ -128,7 +128,6 @@ public class ObjectManagerP2 implements ActionListener {
 				GamePanel.currentState++;
 			} else {
 				GamePanel.endText = "You answered the question incorrectly";
-				GamePanel.currentState = GamePanel.END;
 			}
 		}
 		checkCollision();
@@ -183,7 +182,7 @@ public class ObjectManagerP2 implements ActionListener {
 				}
 			}
 		}
-		for (Iterator<TimerPowerup>iterator = powerups.iterator(); iterator.hasNext();) {
+		for (Iterator<TimerPowerup> iterator = powerups.iterator(); iterator.hasNext();) {
 			TimerPowerup powerup = iterator.next();
 			if (powerup.collisionBox.intersects(car.collisionBox)) {
 				powerup.isActive = false;
@@ -206,14 +205,16 @@ public class ObjectManagerP2 implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		if (arg0.getSource() == increaseSpeed) {
-			speed += 1;
-		}
-		if (arg0.getSource() == alienSpawn) {
-			addAlien();
-		}
-		if (arg0.getSource() == powerupSpawn) {
-			addPowerup();
+		if (!GamePanel.gamePaused) {
+			if (arg0.getSource() == increaseSpeed) {
+				speed += 1;
+			}
+			if (arg0.getSource() == alienSpawn) {
+				addAlien();
+			}
+			if (arg0.getSource() == powerupSpawn) {
+				addPowerup();
+			}
 		}
 	}
 

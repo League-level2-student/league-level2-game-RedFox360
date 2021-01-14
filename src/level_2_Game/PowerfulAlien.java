@@ -6,40 +6,36 @@ import java.awt.image.BufferedImage;
 
 import javax.imageio.ImageIO;
 
-public class Alien2 extends GameObject {
+public class PowerfulAlien extends GameObject {
+
+	int speed;
 	public static BufferedImage image;
 	public static boolean needImage = true;
 	public static boolean gotImage = false;
 
-	public Alien2(int x, int y, int width, int height, int speed) {
+	public PowerfulAlien(int x, int y, int width, int height, int speed) {
 		super(x, y, width, height);
 		this.speed = speed;
 		if (needImage) {
-			loadImage("alien.png");
+			loadImage("powerful_alien.png");
 		}
 	}
 
-	public void update(Car c) {
+	public void update() {
 		super.update();
-		x += speed;
-		if (x < c.x) {
-			if (y > c.y) {
-				y -= speed;
-			} else if (y < c.y) {
-				y += speed;
-			} else if (x > c.x) {
-				x -= speed;
-			}
-		}
+		y += speed;
+	}
 
+	public PowerfulAlienBullet getBullet() {
+		return new PowerfulAlienBullet(x + width / 2, y + 35, 24, 90);
 	}
 
 	public void draw(Graphics g) {
 		if (gotImage) {
 			g.drawImage(image, x, y, width, height, null);
 		} else {
-			g.setColor(Color.YELLOW);
-			g.fillRect(x, y, width, height);
+			g.setColor(Color.PINK);
+			g.drawRect(x, y, width, height);
 		}
 	}
 
@@ -54,5 +50,4 @@ public class Alien2 extends GameObject {
 			needImage = false;
 		}
 	}
-
 }

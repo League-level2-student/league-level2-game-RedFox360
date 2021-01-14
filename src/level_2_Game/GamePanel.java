@@ -36,6 +36,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	static Timer projectileTimer;
 	static boolean useProjectile = false;
 	boolean dialogDrawn = false;
+	public static boolean gamePaused = false;
 	public static Rocketship rocketShip;
 	public static Car car;
 	static int timerLength = 500;
@@ -72,7 +73,6 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		} else if (currentState == END) {
 			drawEndState(g);
 		} else {
-			System.out.println(currentState);
 			drawWonState(g);
 		}
 	}
@@ -100,6 +100,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		g.drawString("Score: " + manager1.getScore(), 20, 50);
 		g.drawString("Alien Speed: " + manager1.getSpeed(), 20, 70);
 		g.drawString("Aliens who got to Earth: " + manager1.getFallenAliens(), 20, 90);
+		if (gamePaused) {
+			g.setFont(normalFont);
+			g.drawString("GAME PAUSED", 300, 400);
+		}
 	}
 
 	public void drawGame2State(Graphics g) {
@@ -109,6 +113,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		g.drawString("Car phase", 20, 20);
 		g.drawString("Score: " + manager2.getScore(), 20, 50);
 		g.drawString("Alien Speed: " + manager2.getSpeed(), 20, 70);
+		if (gamePaused) {
+			g.setFont(normalFont);
+			g.drawString("GAME PAUSED", 300, 400);
+		}
 	}
 
 	public void drawGame3State(Graphics g) {
@@ -151,7 +159,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	}
 
 	public void updateGameState() {
+		if (!gamePaused) {
 		manager1.update();
+		}
 		if (rocketShip.isActive == false) {
 			currentState++;
 			manager1.speed = 1;
@@ -170,7 +180,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	}
 
 	public void updateGame2State() {
+		if (!gamePaused) {
 		manager2.update();
+		}
 		if (car.isActive == false) {
 			currentState++;
 			manager2.speed = 1;
@@ -190,7 +202,15 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			needImage = false;
 		}
 	}
-
+	void clearAll() {
+		manager1.aliens.clear();
+		manager1.projectiles.clear();
+		manager1.asteroids.clear();
+		manager2.aliens.clear();
+		manager1.powerups.clear();
+		manager2.powerups.clear();
+		manager2.bullets.clear();
+	}
 	@Override
 	public void keyPressed(KeyEvent arg0) {
 		if (arg0.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -204,15 +224,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 				car = new Car(700, 700, 100, 100);
 				manager1 = new ObjectManagerP1(rocketShip);
 				manager2 = new ObjectManagerP2(car);
-				manager1.aliens.clear();
-				manager1.projectiles.clear();
-				manager1.asteroids.clear();
-				manager2.aliens.clear();
-				manager1.powerups.clear();
-				manager2.powerups.clear();
-				manager2.bullets.clear();
+				clearAll();
 				currentState = MENU;
 			} else if (currentState == MENU) {
+				clearAll();
 				currentState = GAME;
 			}
 		}
@@ -264,12 +279,19 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			} else if (currentState == GAME2) {
 				manager2.addBullet(car.getBullet());
 			} else if (currentState == MENU) {
-				JOptionPane.showMessageDialog(null, "CONTROLS: Press the arrow keys or use WASD to move around. Use space to shoot projectiles at aliens.\n"
+				JOptionPane.showMessageDialog(null, "CONTROLS: Press the arrow keys or use WASD to move around. Use space to shoot projectiles at aliens. Press escape key to pause the game.\n"
 						+ "GOAL: Battle aliens in space and on Earth, and when you finish, answer a riddle to win the game.\n"
 						+ "Developed by Sameer Prakash 2020\n"
 						+ "View code on Github: https://github.com/League-level2-student/league-level2-game-RedFox360");
 			}
 			useProjectile = false;
+		}
+		if (arg0.getKeyCode() == KeyEvent.VK_ESCAPE) {
+			if (gamePaused) {
+				gamePaused = false;
+			} else if (!gamePaused) {
+				gamePaused = true;
+			}
 		}
 	}
 

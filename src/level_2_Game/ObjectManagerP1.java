@@ -20,13 +20,17 @@ public class ObjectManagerP1 implements ActionListener {
 	int score = 0;
 	int speed = 1;
 	int aliensWhoFellBackToEarth = 0;
-	Timer alienSpawn;
 	Rocketship rocketShip;
 	ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
 	ArrayList<Alien> aliens = new ArrayList<Alien>();
 	ArrayList<Asteroid> asteroids = new ArrayList<Asteroid>();
 	ArrayList<TimerPowerup> powerups = new ArrayList<TimerPowerup>();
+	ArrayList<PowerfulAlien> powerfulAliens = new ArrayList<PowerfulAlien>();
+	ArrayList<PowerfulAlienBullet> powerfulAliensBullets = new ArrayList<PowerfulAlienBullet>();
 	Random random = new Random();
+	Timer alienSpawn;
+	Timer powerfulAlienSpawn;
+	Timer powerfulAlienBulletSpawn;
 	Timer increaseSpeed;
 	Timer asteroidSpawn;
 	Timer powerupSpawn;
@@ -44,22 +48,31 @@ public class ObjectManagerP1 implements ActionListener {
 		increaseSpeed.start();
 		powerupSpawn = new Timer(15000, this);
 		powerupSpawn.start();
+		powerfulAlienSpawn = new Timer(3000, this);
+		powerfulAlienSpawn.start();
+		powerfulAlienBulletSpawn = new Timer(4000, this);
+		powerfulAlienBulletSpawn.start();
 	}
 
 	void addAlien() {
 		aliens.add(new Alien(random.nextInt(AlienInvasion.WIDTH), 0, 50, 50, speed));
 	}
+	
+	void addPowerfulAlien() {
+		powerfulAliens.add(new PowerfulAlien(random.nextInt(AlienInvasion.WIDTH), 0, 50, 50, speed));
+	}
 
 	void addProjectile(Projectile p) {
 		projectiles.add(p);
 	}
-	
+
 	void addAsteroid() {
 		asteroids.add(new Asteroid(random.nextInt(AlienInvasion.WIDTH), 0, 80, 80));
 	}
 
 	void addPowerup() {
-		powerups.add(new TimerPowerup(random.nextInt(AlienInvasion.WIDTH), random.nextInt(AlienInvasion.HEIGHT), 100, 100));
+		powerups.add(
+				new TimerPowerup(random.nextInt(AlienInvasion.WIDTH), random.nextInt(AlienInvasion.HEIGHT), 100, 100));
 	}
 
 	public void update() {
@@ -69,6 +82,7 @@ public class ObjectManagerP1 implements ActionListener {
 			if (alien.y > AlienInvasion.HEIGHT) {
 				alien.isActive = false;
 				aliensWhoFellBackToEarth += 1;
+				score -= 1;
 			}
 		}
 		for (Iterator<Projectile> iterator = projectiles.iterator(); iterator.hasNext();) {
@@ -88,6 +102,21 @@ public class ObjectManagerP1 implements ActionListener {
 		}
 		for (Iterator<TimerPowerup> iterator = powerups.iterator(); iterator.hasNext();) {
 			iterator.next().update();
+		}
+		for (Iterator<PowerfulAlien> iterator = powerfulAliens.iterator(); iterator.hasNext();) {
+			PowerfulAlien alien = iterator.next();
+			alien.update();
+			if (alien.y > AlienInvasion.HEIGHT) {
+				alien.isActive = false;
+				aliensWhoFellBackToEarth += 1;
+				score -= 1;
+			}
+		}
+		for (Iterator<PowerfulAlienBullet> iterator = powerfulAliensBullets.iterator(); iterator.hasNext();) {
+			PowerfulAlienBullet bullet = iterator.next();
+			if (bullet.y > AlienInvasion.HEIGHT) { 
+				
+			}
 		}
 
 		rocketShip.update();
@@ -128,6 +157,12 @@ public class ObjectManagerP1 implements ActionListener {
 		for (Iterator<TimerPowerup> iterator = powerups.iterator(); iterator.hasNext();) {
 			iterator.next().draw(g);
 		}
+		for (Iterator<PowerfulAlien> iterator = powerfulAliens.iterator(); iterator.hasNext();) {
+			iterator.next().draw(g);
+		}
+		for (Iterator<PowerfulAlienBullet> iterator = powerfulAliensBullets.iterator(); iterator.hasNext();) {
+			iterator.next().draw(g);
+		}
 	}
 
 	public void purgeObjects() {
@@ -155,6 +190,19 @@ public class ObjectManagerP1 implements ActionListener {
 				powerups.remove(i);
 			}
 		}
+		for (int i = powerfulAliens.size() - 1; i >= 0; i--) {
+			PowerfulAlien alien = powerfulAliens.get(i);
+			if (!alien.isActive) {
+				powerfulAliens.remove(i);
+			}
+		}
+		for (int i = powerfulAliensBullets.size() - 1; i >= 0; i--) {
+			PowerfulAlienBullet bullet = powerfulAliensBullets.get(i);
+			if (!bullet.isActive) {
+				powerfulAliensBullets.remove(i);
+			}
+		}
+
 	}
 
 	void loadImage(String imageFile) {
@@ -189,7 +237,7 @@ public class ObjectManagerP1 implements ActionListener {
 						projectile.isActive = false;
 					}
 				}
-				
+
 			}
 			for (Iterator<Asteroid> jterator = asteroids.iterator(); jterator.hasNext();) {
 				Asteroid asteroid = jterator.next();
@@ -199,32 +247,69 @@ public class ObjectManagerP1 implements ActionListener {
 				if (asteroid.collisionBox.intersects(rocketShip.collisionBox)) {
 					rocketShip.isActive = false;
 					GamePanel.endText = "Your rocket was hit by an asteroid";
-					GamePanel.currentState = GamePanel.GAME3;
+					GamePanel.currentState = GamePanel.END - 1;
 				}
 			}
 		}
-		for (Iterator<TimerPowerup>iterator = powerups.iterator(); iterator.hasNext();) {
+		for (Iterator<TimerPowerup> iterator = powerups.iterator(); iterator.hasNext();) {
 			TimerPowerup powerup = iterator.next();
 			if (powerup.collisionBox.intersects(rocketShip.collisionBox)) {
 				powerup.isActive = false;
 				GamePanel.halfTimer();
 			}
 		}
+		for (Iterator<PowerfulAlien> iterator = powerfulAliens.iterator(); iterator.hasNext();) {
+			PowerfulAlien alien = iterator.next();
+			if (alien.collisionBox.intersects(rocketShip.collisionBox)) {
+				rocketShip.isActive = false;
+				GamePanel.endText = "Your rocket was hit by a powerful alien.";
+				GamePanel.currentState = GamePanel.END - 1;
+			}
+			for (Iterator<Projectile> jterator = projectiles.iterator(); jterator.hasNext();) {
+				Projectile projectile = jterator.next(); 
+				if (alien.collisionBox.intersects(projectile.collisionBox)) {
+					alien.isActive = false;
+					projectile.isActive = false;
+				}
+			}
+		}
+		for (Iterator<PowerfulAlienBullet> iterator = powerfulAliensBullets.iterator();iterator.hasNext();) {
+			PowerfulAlienBullet bullet = iterator.next();
+			if (bullet.collisionBox.intersects(rocketShip.collisionBox)) {
+				rocketShip.isActive = false;
+			}
+			for (Iterator<Projectile> jterator = projectiles.iterator(); jterator.hasNext();) {
+				Projectile projectile = jterator.next(); 
+				if (bullet.collisionBox.intersects(projectile.collisionBox)) {
+					projectile.isActive = false;
+				}
+			}
+		}
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		if (arg0.getSource() == increaseSpeed) {
-			speed += 1;
-		}
-		if (arg0.getSource() == alienSpawn) {
-			addAlien();
-		}
-		if (arg0.getSource() == asteroidSpawn) {
-			addAsteroid();
-		}
-		if (arg0.getSource() == powerupSpawn) {
-			addPowerup();
+		if (!GamePanel.gamePaused) {
+			if (arg0.getSource() == increaseSpeed) {
+				speed += 1;
+			}
+			if (arg0.getSource() == alienSpawn) {
+				addAlien();
+			}
+			if (arg0.getSource() == asteroidSpawn) {
+				addAsteroid();
+			}
+			if (arg0.getSource() == powerupSpawn) {
+				addPowerup();
+			}
+			if (arg0.getSource() == powerfulAlienSpawn) {
+				addPowerfulAlien();
+			}
+			if (arg0.getSource() == powerfulAlienBulletSpawn) {
+				for (Iterator<PowerfulAlien> iterator = powerfulAliens.iterator(); iterator.hasNext();) {
+					powerfulAliensBullets.add(iterator.next().getBullet());
+				}
+			}
 		}
 	}
 }
