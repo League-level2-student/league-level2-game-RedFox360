@@ -35,7 +35,7 @@ public class ObjectManagerP1 implements ActionListener {
 	Timer asteroidSpawn;
 	Timer powerupSpawn;
 
-	ObjectManagerP1(Rocketship r) {
+	public ObjectManagerP1(Rocketship r) {
 		rocketShip = r;
 		if (needImage) {
 			loadImage("space.png");
@@ -119,7 +119,6 @@ public class ObjectManagerP1 implements ActionListener {
 				bullet.isActive = false;
 			}
 		}
-
 		rocketShip.update();
 		checkCollision();
 		purgeObjects();

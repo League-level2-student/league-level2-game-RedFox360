@@ -14,7 +14,7 @@ public class AlienInvasion {
 		AlienInvasion gameClass = new AlienInvasion();
 		gameClass.setup();
 	}
-	AlienInvasion() {
+	public AlienInvasion() {
 		frame = new JFrame();
 		panel = new GamePanel();
 	}

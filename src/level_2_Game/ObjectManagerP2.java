@@ -25,6 +25,8 @@ public class ObjectManagerP2 implements ActionListener {
 	Timer increaseSpeed;
 	Timer alienSpawn;
 	Timer powerupSpawn;
+	Timer timeLimit;
+	int secondsUntilGameOver = 0;
 	Random random = new Random();
 	ArrayList<Alien2> aliens = new ArrayList<Alien2>();
 	ArrayList<Bullet> bullets = new ArrayList<Bullet>();
@@ -39,6 +41,8 @@ public class ObjectManagerP2 implements ActionListener {
 		speed = 1;
 		powerupSpawn = new Timer(15000, this);
 		powerupSpawn.start();
+		timeLimit = new Timer(100000, this);
+		timeLimit.start();
 		if (needImage) {
 			loadImage("phase2background.jpg");
 		}
@@ -68,6 +72,9 @@ public class ObjectManagerP2 implements ActionListener {
 
 	int getSpeed() {
 		return speed;
+	}
+	int getTime() {
+		return 100 - secondsUntilGameOver;
 	}
 
 	public void draw(Graphics g) {
@@ -115,14 +122,14 @@ public class ObjectManagerP2 implements ActionListener {
 			car.isActive = false;
 			GamePanel.currentState++;
 		}
-		if (aliensKilled >= 20) {
+		if (aliensKilled >= 40) {
 			car.isActive = false;
 			GamePanel.currentState++;
-			String[] options = { "Java", "Python", "C++", "C", "Swift", "Javascript" };
+			String[] options = { "Java", "Python", "C++", "C", "Swift", "Javascript", "Typescript", "Ruby", "Perl" };
 			JOptionPane.showMessageDialog(null,
 					"The alien leader sees you are a great warrior, but he will not leave Earth alone until you prove your intelligence.");
 			int x = JOptionPane.showOptionDialog(null, "What is the best coding language?", "Click a button",
-					JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
+					JOptionPane.INFORMATION_MESSAGE, JOptionPane.INFORMATION_MESSAGE, null, options, null);
 			if (x == 0 || x == 1) {
 				JOptionPane.showMessageDialog(null, "You're correct!");
 				GamePanel.currentState++;
@@ -215,9 +222,15 @@ public class ObjectManagerP2 implements ActionListener {
 			}
 			if (arg0.getSource() == alienSpawn) {
 				addAlien();
+				secondsUntilGameOver += 1;
 			}
 			if (arg0.getSource() == powerupSpawn) {
 				addPowerup();
+			}
+			if (arg0.getSource() == timeLimit) {
+				car.isActive = false;
+				GamePanel.endText = "You ran out of time!";
+				GamePanel.currentState++;
 			}
 		}
 	}

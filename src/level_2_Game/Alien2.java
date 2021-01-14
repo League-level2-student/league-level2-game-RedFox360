@@ -10,7 +10,7 @@ public class Alien2 extends GameObject {
 	public static BufferedImage image;
 	public static boolean needImage = true;
 	public static boolean gotImage = false;
-
+	
 	public Alien2(int x, int y, int width, int height, int speed) {
 		super(x, y, width, height);
 		this.speed = speed;

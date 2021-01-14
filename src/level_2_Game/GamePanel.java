@@ -43,7 +43,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	ObjectManagerP1 manager1;
 	ObjectManagerP2 manager2;
 
-	GamePanel() {
+	public GamePanel() {
 		titleFont = new Font("Consolas", Font.PLAIN, 50);
 		normalFont = new Font("Consolas", Font.PLAIN, 24);
 		frameDraw = new Timer(1000 / 60, this);
@@ -113,6 +113,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		g.drawString("Car phase", 20, 20);
 		g.drawString("Score: " + manager2.getScore(), 20, 50);
 		g.drawString("Alien Speed: " + manager2.getSpeed(), 20, 70);
+		g.drawString("Time: " + manager2.getTime(), 20, 90);
 		if (gamePaused) {
 			g.setFont(normalFont);
 			g.drawString("GAME PAUSED", 300, 400);
@@ -144,8 +145,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		g.setFont(normalFont);
 		g.drawString(endText, 200, 250);
 		g.drawString("The world is doomed...", 250, 400);
-		g.drawString("Your final score is " + manager2.getScore(), 250, 500);
-		g.drawString("Press ENTER to restart", 250, 600);
+		g.drawString("Your final score is " + manager2.getScore(), 250, 550);
+		g.drawString("Press ENTER to restart", 250, 700);
 	}
 
 	public void drawWonState(Graphics g) {
@@ -155,9 +156,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		g.setFont(titleFont);
 		g.drawString("You Won!", 300, 200);
 		g.setFont(normalFont);
-		g.drawString("Thanks for playing Alien Invasion!", 200, 400);
+		g.drawString("Thanks for playing Alien Invasion!", 200, 350);
 		g.drawString("Your final score is " + manager2.getScore(), 250, 500);
-		g.drawString("Press ENTER to restart", 250, 600);
+		g.drawString("Press ENTER to restart", 250, 650);
 	}
 
 	public void updateGameState() {
@@ -214,7 +215,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		manager1.powerups.clear();
 		manager2.powerups.clear();
 		manager2.bullets.clear();
+		manager1.speed = 1;
+		manager2.speed = 1;
+
 	}
+	
 	@Override
 	public void keyPressed(KeyEvent arg0) {
 		if (arg0.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -301,7 +306,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
 	@Override
 	public void keyReleased(KeyEvent arg0) {
-
+		
 	}
 
 	@Override
