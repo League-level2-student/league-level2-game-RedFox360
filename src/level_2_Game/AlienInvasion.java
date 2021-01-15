@@ -34,9 +34,12 @@ public class AlienInvasion implements ActionListener {
 	JButton saveAll, resetAll, closePref;
 
 	public static void main(String[] args) {
-		if (System.getProperty("os.name").equals("Mac OS X")) {
+		if (System.getProperty("os.name").contains("Mac")) {
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
 			System.setProperty("apple.awt.application.name", "Alien Invasion");
+		}
+		else {
+			
 		}
 		AlienInvasion gameClass = new AlienInvasion();
 		gameClass.setup();
