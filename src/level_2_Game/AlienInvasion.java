@@ -2,6 +2,7 @@ package level_2_Game;
 
 import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -19,21 +20,23 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 public class AlienInvasion implements ActionListener {
-	JFrame frame;
+	JFrame frame, preferences;
 	GamePanel panel;
 	JMenuBar menubar;
 	JMenu fileMenu, viewMenu, helpMenu;
-	JMenuItem exitMenuItem, preferencesMenuItem, hideStatsItem, helpWithControlsItem, infoItem, githubItem;
+	JMenuItem exitMenuItem, preferencesMenuItem, hideStatsItem, helpWithControlsItem, infoItem, githubItem,
+			pauseGameItem;
+	boolean isSaved = false;
 	public static int WIDTH = 800;
 	public static int HEIGHT = 800;
 	JTextField sizeX, sizeY;
 	JTextField alienSpawnRate;
-	JButton saveAll, resetAll;
+	JButton saveAll, resetAll, closePref;
 
 	public static void main(String[] args) {
 		if (System.getProperty("os.name").equals("Mac OS X")) {
-			System.setProperty("apple.awt.application.name", "Alien Invasion");
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
+			System.setProperty("apple.awt.application.name", "Alien Invasion");
 		}
 		AlienInvasion gameClass = new AlienInvasion();
 		gameClass.setup();
@@ -49,10 +52,11 @@ public class AlienInvasion implements ActionListener {
 		menubar = new JMenuBar();
 		fileMenu = new JMenu("File");
 		exitMenuItem = new JMenuItem("Exit");
-		infoItem = new JMenuItem("Project info");
+		infoItem = new JMenuItem("Project Info");
 		viewMenu = new JMenu("View");
 		helpMenu = new JMenu("Info");
-		githubItem = new JMenuItem("View source code");
+		pauseGameItem = new JMenuItem("Pause Game");
+		githubItem = new JMenuItem("View Source Code");
 		helpWithControlsItem = new JMenuItem("Controls");
 		hideStatsItem = new JMenuItem("Hide/Show Stats");
 		preferencesMenuItem = new JMenuItem("Preferences");
@@ -63,12 +67,14 @@ public class AlienInvasion implements ActionListener {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.addKeyListener(panel);
 		frame.setResizable(false);
+		setFonts();
 	}
 
 	void addMenubar() {
 		fileMenu.add(preferencesMenuItem);
 		fileMenu.add(exitMenuItem);
 		viewMenu.add(hideStatsItem);
+		viewMenu.add(pauseGameItem);
 		helpMenu.add(infoItem);
 		helpMenu.add(githubItem);
 		helpMenu.add(helpWithControlsItem);
@@ -81,6 +87,7 @@ public class AlienInvasion implements ActionListener {
 		helpWithControlsItem.addActionListener(this);
 		infoItem.addActionListener(this);
 		githubItem.addActionListener(this);
+		pauseGameItem.addActionListener(this);
 	}
 
 	void openPreferences() {
@@ -89,7 +96,8 @@ public class AlienInvasion implements ActionListener {
 		saveAll = new JButton("Save");
 		resetAll = new JButton("Reset");
 		alienSpawnRate = new JTextField("seconds");
-		JFrame preferences = new JFrame("Preferences");
+		closePref = new JButton("Close");
+		preferences = new JFrame("Preferences");
 		JPanel ppanel = new JPanel();
 		JLabel textLabel = new JLabel("Size");
 		JLabel label2 = new JLabel("Alien spawn rate");
@@ -100,6 +108,7 @@ public class AlienInvasion implements ActionListener {
 		ppanel.add(alienSpawnRate);
 		ppanel.add(saveAll);
 		ppanel.add(resetAll);
+		ppanel.add(closePref);
 		sizeX.addActionListener(this);
 		sizeY.addActionListener(this);
 		saveAll.addActionListener(this);
@@ -107,6 +116,7 @@ public class AlienInvasion implements ActionListener {
 		sizeY.setPreferredSize(new Dimension(200, 30));
 		alienSpawnRate.setPreferredSize(new Dimension(330, 30));
 		alienSpawnRate.addActionListener(this);
+		closePref.addActionListener(this);
 		resetAll.addActionListener(this);
 		preferences.add(ppanel);
 		preferences.setVisible(true);
@@ -122,6 +132,36 @@ public class AlienInvasion implements ActionListener {
 		}
 	}
 
+	void saveChanges() {
+		try {
+			WIDTH = Integer.parseInt(sizeX.getText());
+			HEIGHT = Integer.parseInt(sizeY.getText());
+			frame.setSize(WIDTH, HEIGHT);
+		} catch (Exception e) {
+
+		}
+		try {
+			GamePanel.setAlienSpawnRate(Integer.parseInt(alienSpawnRate.getText()));
+		} catch (Exception e) {
+
+		}
+		isSaved = true;
+	}
+	
+	void setFonts() {
+		Font menuFont = new Font("Consolas", Font.PLAIN, 16);
+		fileMenu.setFont(menuFont);
+		viewMenu.setFont(menuFont);
+		helpMenu.setFont(menuFont);
+		exitMenuItem.setFont(menuFont);
+		preferencesMenuItem.setFont(menuFont);
+		hideStatsItem.setFont(menuFont);
+		helpWithControlsItem.setFont(menuFont);
+		infoItem.setFont(menuFont);
+		githubItem.setFont(menuFont);
+		pauseGameItem.setFont(menuFont);
+	}
+
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		// TODO Auto-generated method stub
@@ -130,16 +170,10 @@ public class AlienInvasion implements ActionListener {
 		}
 		if (arg0.getSource() == preferencesMenuItem) {
 			openPreferences();
+			isSaved = false;
 		}
 		if (arg0.getSource() == saveAll) {
-			try {
-				WIDTH = Integer.parseInt(sizeX.getText());
-				HEIGHT = Integer.parseInt(sizeY.getText());
-				GamePanel.setAlienSpawnRate(Integer.parseInt(alienSpawnRate.getText()));
-				frame.setSize(WIDTH, HEIGHT);
-			} catch (Exception e) {
-
-			}
+			saveChanges();
 		}
 		if (arg0.getSource() == resetAll) {
 			WIDTH = 800;
@@ -148,11 +182,7 @@ public class AlienInvasion implements ActionListener {
 			frame.setSize(WIDTH, HEIGHT);
 		}
 		if (arg0.getSource() == hideStatsItem) {
-			if (!GamePanel.hideMenus) {
-				GamePanel.hideMenus = true;
-			} else if (GamePanel.hideMenus) {
-				GamePanel.hideMenus = false;
-			}
+			GamePanel.hideMenus();
 		}
 		if (arg0.getSource() == helpWithControlsItem) {
 			JOptionPane.showMessageDialog(frame,
@@ -168,6 +198,23 @@ public class AlienInvasion implements ActionListener {
 					"Are you sure you want to go to the website https://github.com/League-level2-student/league-level2-game-RedFox360?");
 			if (optionChosen == 0) {
 				openWebpage("https://github.com/League-level2-student/league-level2-game-RedFox360");
+			}
+		}
+		if (arg0.getSource() == pauseGameItem) {
+			GamePanel.pauseGame();
+		}
+		if (arg0.getSource() == closePref) {
+			if (!isSaved) {
+				int optionChosen = JOptionPane.showConfirmDialog(preferences,
+						"You have unsaved changes. Do you want to save changes before closing?");
+				if (optionChosen == 0) {
+					saveChanges();
+					preferences.dispose();
+				} else if (optionChosen == 1) {
+					preferences.dispose();
+				}
+			} else {
+				preferences.dispose();
 			}
 		}
 	}

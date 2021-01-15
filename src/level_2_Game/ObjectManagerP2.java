@@ -22,10 +22,10 @@ public class ObjectManagerP2 implements ActionListener {
 	int score;
 	int aliensKilled = 0;
 	int aliensWhoGotAway = 0;
-	Timer increaseSpeed;
+	public static Timer increaseSpeed;
 	public static Timer alienSpawn;
-	Timer powerupSpawn;
-	Timer timeLimit;
+	public static Timer powerupSpawn;
+	public static Timer timeLimit;
 	int secondsUntilGameOver = 0;
 	Random random = new Random();
 	ArrayList<Alien2> aliens = new ArrayList<Alien2>();

@@ -29,11 +29,11 @@ public class ObjectManagerP1 implements ActionListener {
 	ArrayList<PowerfulAlienBullet> powerfulAliensBullets = new ArrayList<PowerfulAlienBullet>();
 	Random random = new Random();
 	public static Timer alienSpawn;
-	Timer powerfulAlienSpawn;
-	Timer powerfulAlienBulletSpawn;
-	Timer increaseSpeed;
-	Timer asteroidSpawn;
-	Timer powerupSpawn;
+	public static Timer powerfulAlienSpawn;
+	public static Timer powerfulAlienBulletSpawn;
+	public static Timer increaseSpeed;
+	public static Timer asteroidSpawn;
+	public static Timer powerupSpawn;
 
 	public ObjectManagerP1(Rocketship r) {
 		rocketShip = r;
@@ -109,7 +109,9 @@ public class ObjectManagerP1 implements ActionListener {
 			if (alien.y > AlienInvasion.HEIGHT) {
 				alien.isActive = false;
 				aliensWhoFellBackToEarth += 1;
-				score -= 1;
+				if (score != 0) {
+					score -= 1;
+				}
 			}
 		}
 		for (Iterator<PowerfulAlienBullet> iterator = powerfulAliensBullets.iterator(); iterator.hasNext();) {
@@ -279,6 +281,12 @@ public class ObjectManagerP1 implements ActionListener {
 					projectile.isActive = false;
 				}
 			}
+			for (Iterator<Asteroid> jterator = asteroids.iterator(); jterator.hasNext();) {
+				Asteroid asteroid = jterator.next();
+				if (alien.collisionBox.intersects(asteroid.collisionBox)) {
+					alien.isActive = false;
+				}
+			}
 		}
 		for (Iterator<PowerfulAlienBullet> iterator = powerfulAliensBullets.iterator(); iterator.hasNext();) {
 			PowerfulAlienBullet bullet = iterator.next();
@@ -290,6 +298,12 @@ public class ObjectManagerP1 implements ActionListener {
 				Projectile projectile = jterator.next();
 				if (bullet.collisionBox.intersects(projectile.collisionBox)) {
 					projectile.isActive = false;
+				}
+			}
+			for (Iterator<Asteroid> jterator = asteroids.iterator(); jterator.hasNext();) {
+				Asteroid asteroid = jterator.next();
+				if (bullet.collisionBox.intersects(asteroid.collisionBox)) {
+					bullet.isActive = false;
 				}
 			}
 		}

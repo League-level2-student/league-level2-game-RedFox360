@@ -36,10 +36,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	static Timer projectileTimer;
 	static boolean useProjectile = false;
 	boolean dialogDrawn = false;
-	public static boolean gamePaused = false;
+	static boolean gamePaused = false;
 	public static Rocketship rocketShip;
 	public static Car car;
-	public static boolean hideMenus;
+	static boolean hideMenus;
 	static int timerLength = 500;
 	ObjectManagerP1 manager1;
 	ObjectManagerP2 manager2;
@@ -176,15 +176,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		}
 		if (rocketShip.isActive == false) {
 			currentState++;
-			manager1.speed = 1;
-			manager1.aliens.clear();
-			manager1.projectiles.clear();
-			manager1.asteroids.clear();
-			manager1.speed = 1;
-			manager2.speed = 1;
-			manager2.aliens.clear();
-			manager1.powerups.clear();
-			manager2.powerups.clear();
+			clearAll();
 			manager2.setScore(manager1.getScore());
 			manager2.start();
 			timerLength = 500;
@@ -198,9 +190,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		}
 		if (car.isActive == false) {
 			currentState++;
-			manager2.speed = 1;
-			manager2.aliens.clear();
-			manager2.bullets.clear();
+			clearAll();
 		}
 	}
 
@@ -305,27 +295,18 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 				manager2.addBullet(car.getBullet());
 			} else if (currentState == MENU) {
 				JOptionPane.showMessageDialog(null,
-						"GAME CONTROLS: Press the arrow keys or use WASD to move around    Use space to shoot projectiles at aliens.\n"
-						+ "OTHER CONTROLS: Press escape to pause the game    Press F3 to hide the menus."
-						+ "GOAL: Battle aliens in space and on Earth, and when you finish, answer a riddle to win the game.\n"
+						"GOAL: Battle aliens in space and on Earth, and when you finish, answer a riddle to win the game.\n"
+						+ "The clock power up decreases the cooldown between firing projectiles.\n"
 						+ "Developed by Sameer Prakash 2020\n"
 						+ "View code on Github: https://github.com/League-level2-student/league-level2-game-RedFox360");
 			}
 			useProjectile = false;
 		}
 		if (arg0.getKeyCode() == KeyEvent.VK_ESCAPE) {
-			if (gamePaused) {
-				gamePaused = false;
-			} else if (!gamePaused) {
-				gamePaused = true;
-			}
+			pauseGame();
 		}
-		if (arg0.getKeyCode() == KeyEvent.VK_1) {
-			if (hideMenus) {
-				hideMenus = false;
-			} else if (!hideMenus) {
-				hideMenus = true;
-			}
+		if (arg0.getKeyCode() == KeyEvent.VK_F3) {
+			hideMenus();
 		}
 	}
 	@Override
@@ -349,5 +330,37 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			useProjectile = true;
 		}
 		repaint();
+	}
+	public static void hideMenus() {
+		if (hideMenus) {
+			hideMenus = false;
+		} else if (!hideMenus) {
+			hideMenus = true;
+		}
+	}
+	public static void pauseGame() {
+		if (gamePaused) {
+			gamePaused = false;
+			ObjectManagerP1.alienSpawn.start();
+			ObjectManagerP1.asteroidSpawn.start();
+			ObjectManagerP1.powerfulAlienBulletSpawn.start();
+			ObjectManagerP1.powerfulAlienSpawn.start();
+			ObjectManagerP1.powerupSpawn.start();
+			ObjectManagerP2.alienSpawn.start();
+			ObjectManagerP2.powerupSpawn.start();
+			ObjectManagerP2.timeLimit.start();
+			ObjectManagerP2.increaseSpeed.start();
+		} else if (!gamePaused) {
+			gamePaused = true;
+			ObjectManagerP1.alienSpawn.stop();
+			ObjectManagerP1.asteroidSpawn.stop();
+			ObjectManagerP1.powerfulAlienBulletSpawn.stop();
+			ObjectManagerP1.powerfulAlienSpawn.stop();
+			ObjectManagerP1.powerupSpawn.stop();
+			ObjectManagerP2.alienSpawn.stop();
+			ObjectManagerP2.powerupSpawn.stop();
+			ObjectManagerP2.timeLimit.stop();
+			ObjectManagerP2.increaseSpeed.stop();
+		}
 	}
 }
