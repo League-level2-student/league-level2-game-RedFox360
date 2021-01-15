@@ -28,7 +28,7 @@ public class ObjectManagerP1 implements ActionListener {
 	ArrayList<PowerfulAlien> powerfulAliens = new ArrayList<PowerfulAlien>();
 	ArrayList<PowerfulAlienBullet> powerfulAliensBullets = new ArrayList<PowerfulAlienBullet>();
 	Random random = new Random();
-	Timer alienSpawn;
+	public static Timer alienSpawn;
 	Timer powerfulAlienSpawn;
 	Timer powerfulAlienBulletSpawn;
 	Timer increaseSpeed;

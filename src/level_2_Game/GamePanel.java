@@ -39,6 +39,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	public static boolean gamePaused = false;
 	public static Rocketship rocketShip;
 	public static Car car;
+	public static boolean hideMenus;
 	static int timerLength = 500;
 	ObjectManagerP1 manager1;
 	ObjectManagerP2 manager2;
@@ -76,11 +77,13 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			drawWonState(g);
 		}
 	}
+
 	public static void halfTimer() {
 		useProjectile = true;
 		timerLength /= 2;
 		projectileTimer.setDelay(timerLength);
 	}
+
 	public void drawMenuState(Graphics g) {
 		g.setColor(Color.BLUE);
 		g.fillRect(0, 0, AlienInvasion.WIDTH, AlienInvasion.HEIGHT);
@@ -91,15 +94,17 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		g.drawString("Press ENTER to start", 250, 400);
 		g.drawString("Press SPACE for instructions", 200, 600);
 	}
-	
+
 	public void drawGameState(Graphics g) {
 		manager1.draw(g);
 		g.setColor(Color.BLUE);
 		g.setFont(scoreFont);
-		g.drawString("Rocket phase", 20, 20);
-		g.drawString("Score: " + manager1.getScore(), 20, 50);
-		g.drawString("Alien Speed: " + manager1.getSpeed(), 20, 70);
-		g.drawString("Aliens who got to Earth: " + manager1.getFallenAliens(), 20, 90);
+		if (!hideMenus) {
+			g.drawString("Rocket phase", 20, 20);
+			g.drawString("Score: " + manager1.getScore(), 20, 50);
+			g.drawString("Alien Speed: " + manager1.getSpeed(), 20, 70);
+			g.drawString("Aliens who got to Earth: " + manager1.getFallenAliens(), 20, 90);
+		}
 		if (gamePaused) {
 			g.setFont(normalFont);
 			g.drawString("GAME PAUSED", 300, 400);
@@ -110,10 +115,12 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		manager2.draw(g);
 		g.setColor(Color.BLUE);
 		g.setFont(scoreFont);
-		g.drawString("Car phase", 20, 20);
-		g.drawString("Score: " + manager2.getScore(), 20, 50);
-		g.drawString("Alien Speed: " + manager2.getSpeed(), 20, 70);
-		g.drawString("Time: " + manager2.getTime(), 20, 90);
+		if (!hideMenus) {
+			g.drawString("Car phase", 20, 20);
+			g.drawString("Score: " + manager2.getScore(), 20, 50);
+			g.drawString("Alien Speed: " + manager2.getSpeed(), 20, 70);
+			g.drawString("Time: " + manager2.getTime(), 20, 90);
+		}
 		if (gamePaused) {
 			g.setFont(normalFont);
 			g.drawString("GAME PAUSED", 300, 400);
@@ -129,9 +136,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			g.drawRect(0, 0, AlienInvasion.WIDTH, AlienInvasion.HEIGHT);
 		}
 	}
+
 	public void drawDialog() {
 		if (!dialogDrawn) {
-			JOptionPane.showMessageDialog(this, "The alien leader sees that you are a great warrior, but he will not leave Earth alone until you prove your intelligence.");
+			JOptionPane.showMessageDialog(this,
+					"The alien leader sees that you are a great warrior, but he will not leave Earth alone until you prove your intelligence.");
 			dialogDrawn = true;
 		}
 	}
@@ -163,7 +172,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
 	public void updateGameState() {
 		if (!gamePaused) {
-		manager1.update();
+			manager1.update();
 		}
 		if (rocketShip.isActive == false) {
 			currentState++;
@@ -177,6 +186,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			manager1.powerups.clear();
 			manager2.powerups.clear();
 			manager2.setScore(manager1.getScore());
+			manager2.start();
 			timerLength = 500;
 			projectileTimer.setDelay(timerLength);
 		}
@@ -184,7 +194,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
 	public void updateGame2State() {
 		if (!gamePaused) {
-		manager2.update();
+			manager2.update();
 		}
 		if (car.isActive == false) {
 			currentState++;
@@ -205,6 +215,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			needImage = false;
 		}
 	}
+
 	void clearAll() {
 		manager1.aliens.clear();
 		manager1.projectiles.clear();
@@ -217,9 +228,14 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		manager2.bullets.clear();
 		manager1.speed = 1;
 		manager2.speed = 1;
-
 	}
 	
+	public static void setAlienSpawnRate(int rateSecs) {
+		int rate = rateSecs*1000;
+		ObjectManagerP1.alienSpawn.setDelay(rate);
+		ObjectManagerP2.alienSpawn.setDelay(rate);
+	}
+
 	@Override
 	public void keyPressed(KeyEvent arg0) {
 		if (arg0.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -288,7 +304,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			} else if (currentState == GAME2) {
 				manager2.addBullet(car.getBullet());
 			} else if (currentState == MENU) {
-				JOptionPane.showMessageDialog(null, "CONTROLS: Press the arrow keys or use WASD to move around. Use space to shoot projectiles at aliens. Press escape key to pause the game.\n"
+				JOptionPane.showMessageDialog(null,
+						"GAME CONTROLS: Press the arrow keys or use WASD to move around    Use space to shoot projectiles at aliens.\n"
+						+ "OTHER CONTROLS: Press escape to pause the game    Press F3 to hide the menus."
 						+ "GOAL: Battle aliens in space and on Earth, and when you finish, answer a riddle to win the game.\n"
 						+ "Developed by Sameer Prakash 2020\n"
 						+ "View code on Github: https://github.com/League-level2-student/league-level2-game-RedFox360");
@@ -302,11 +320,17 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 				gamePaused = true;
 			}
 		}
+		if (arg0.getKeyCode() == KeyEvent.VK_1) {
+			if (hideMenus) {
+				hideMenus = false;
+			} else if (!hideMenus) {
+				hideMenus = true;
+			}
+		}
 	}
-
 	@Override
 	public void keyReleased(KeyEvent arg0) {
-		
+
 	}
 
 	@Override

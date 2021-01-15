@@ -23,7 +23,7 @@ public class ObjectManagerP2 implements ActionListener {
 	int aliensKilled = 0;
 	int aliensWhoGotAway = 0;
 	Timer increaseSpeed;
-	Timer alienSpawn;
+	public static Timer alienSpawn;
 	Timer powerupSpawn;
 	Timer timeLimit;
 	int secondsUntilGameOver = 0;
@@ -36,18 +36,19 @@ public class ObjectManagerP2 implements ActionListener {
 		car = c;
 		alienSpawn = new Timer(1000, this);
 		increaseSpeed = new Timer(20000, this);
-		increaseSpeed.start();
-		alienSpawn.start();
 		speed = 1;
 		powerupSpawn = new Timer(15000, this);
-		powerupSpawn.start();
 		timeLimit = new Timer(100000, this);
-		timeLimit.start();
 		if (needImage) {
 			loadImage("phase2background.jpg");
 		}
 	}
-
+	public void start() {
+		increaseSpeed.start();
+		alienSpawn.start();
+		powerupSpawn.start();
+		timeLimit.start();
+	}
 	void addPowerup() {
 		powerups.add(
 				new TimerPowerup(random.nextInt(AlienInvasion.WIDTH), random.nextInt(AlienInvasion.HEIGHT), 100, 100));
@@ -125,7 +126,7 @@ public class ObjectManagerP2 implements ActionListener {
 		if (aliensKilled >= 40) {
 			car.isActive = false;
 			GamePanel.currentState++;
-			String[] options = { "Java", "Python", "C++", "C", "Swift", "Javascript", "Typescript", "Ruby", "Perl" };
+			String[] options = { "Java", "Python", "C++", "C", "Swift", "Javascript", "Ruby", "Perl" };
 			JOptionPane.showMessageDialog(null,
 					"The alien leader sees you are a great warrior, but he will not leave Earth alone until you prove your intelligence.");
 			int x = JOptionPane.showOptionDialog(null, "What is the best coding language?", "Click a button",
