@@ -55,10 +55,9 @@ public class ObjectManagerP2 implements ActionListener {
 		powerups.add(
 				new TimerPowerup(random.nextInt(AlienInvasion.WIDTH), random.nextInt(AlienInvasion.HEIGHT), 100, 100));
 	}
-
-	void setScore(int score) {
+	void setScore(int x) {
 		scoreSet = true;
-		this.score = score;
+		score = x;
 	}
 
 	public void clearAll() {

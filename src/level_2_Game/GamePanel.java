@@ -119,7 +119,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			g.drawString("Rocket phase", 20, 20);
 			g.drawString("Score: " + manager1.getScore(), 20, 50);
 			g.drawString("Alien Speed: " + manager1.getSpeed(), 20, 70);
-			g.drawString("Aliens who got to Earth: " + manager1.getFallenAliens(), 20, 90);
+			g.drawString("Time Left: " + ObjectManagerP1.getTime() + " secs", 20, 90);
+			g.drawString("Aliens who got to Earth: " + manager1.getFallenAliens(), 20, 110);
 		}
 		if (gamePaused) {
 			g.setFont(normalFont);
@@ -135,7 +136,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			g.drawString("Car phase", 20, 20);
 			g.drawString("Score: " + manager2.getScore(), 20, 50);
 			g.drawString("Alien Speed: " + manager2.getSpeed(), 20, 70);
-			g.drawString("Time: " + manager2.getTime(), 20, 90);
+			g.drawString("Time: " + manager2.getTime() + " secs", 20, 90);
 		}
 		if (gamePaused) {
 			g.setFont(normalFont);

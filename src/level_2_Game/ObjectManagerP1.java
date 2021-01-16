@@ -30,12 +30,14 @@ public class ObjectManagerP1 implements ActionListener {
 	ArrayList<PowerfulAlien> powerfulAliens = new ArrayList<PowerfulAlien>();
 	ArrayList<PowerfulAlienBullet> powerfulAliensBullets = new ArrayList<PowerfulAlienBullet>();
 	Random random = new Random();
+	static int timeLeft = 50;
 	public static Timer alienSpawn;
 	public static Timer powerfulAlienSpawn;
 	public static Timer powerfulAlienBulletSpawn;
 	public static Timer increaseSpeed;
 	public static Timer asteroidSpawn;
 	public static Timer powerupSpawn;
+	public static Timer timeLimit;
 
 	public ObjectManagerP1(Rocketship r) {
 		rocketShip = r;
@@ -54,6 +56,8 @@ public class ObjectManagerP1 implements ActionListener {
 		powerfulAlienSpawn.start();
 		powerfulAlienBulletSpawn = new Timer(4000, this);
 		powerfulAlienBulletSpawn.start();
+		timeLimit = new Timer(50000, this);
+		timeLimit.start();
 	}
 
 	void addAlien() {
@@ -79,6 +83,10 @@ public class ObjectManagerP1 implements ActionListener {
 	void addPowerup() {
 		powerups.add(
 				new TimerPowerup(random.nextInt(AlienInvasion.WIDTH), random.nextInt(AlienInvasion.HEIGHT), 100, 100));
+	}
+
+	public static int getTime() {
+		return timeLeft;
 	}
 
 	public void update() {
@@ -325,6 +333,7 @@ public class ObjectManagerP1 implements ActionListener {
 			}
 			if (arg0.getSource() == alienSpawn) {
 				addAlien();
+				timeLeft -= 1;
 			}
 			if (arg0.getSource() == asteroidSpawn) {
 				addAsteroid();
@@ -339,6 +348,10 @@ public class ObjectManagerP1 implements ActionListener {
 				for (Iterator<PowerfulAlien> iterator = powerfulAliens.iterator(); iterator.hasNext();) {
 					powerfulAliensBullets.add(iterator.next().getBullet());
 				}
+			}
+			if (arg0.getSource() == timeLimit) {
+				JOptionPane.showMessageDialog(null, "Your rocket is failing...you are falling back to Earth...");
+				GamePanel.currentState++;
 			}
 		}
 	}

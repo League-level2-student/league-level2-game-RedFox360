@@ -28,20 +28,20 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 public class AlienInvasion implements ActionListener {
-	JFrame frame, preferences;
+	JFrame frame, preferences, devPane;
 	GamePanel panel;
 	JMenuBar menubar;
 	JMenu fileMenu, viewMenu, helpMenu, currentLevelMenu;
 	JMenuItem exitMenuItem, preferencesMenuItem, hideStatsItem, helpWithControlsItem, infoItem, githubItem, newGameItem,
-			pauseGameItem, easyMenuItem, mediumMenuItem, hardMenuItem, toggleDevToolsItem, fullScreenItem, writeStatsToFItem;
+			pauseGameItem, easyMenuItem, mediumMenuItem, hardMenuItem, toggleDevToolsItem, fullScreenItem,
+			writeStatsToFItem, openDevPaneItem;
 	JCheckBox spawnPowerfulAliensCxb, spawnAsteroidsCxb;
-	static String path;
 	boolean isSaved = false;
 	public static int WIDTH = 800;
 	public static int HEIGHT = 800;
 	JTextField sizeX, sizeY;
 	JTextField alienSpawnRate;
-	JButton saveAll, resetAll, closePref;
+	JButton saveAll, resetAll, closePref, backDev, forwDev, endGameDev;
 	static boolean onMac = false;
 
 	public static void main(String[] args) {
@@ -49,7 +49,6 @@ public class AlienInvasion implements ActionListener {
 			onMac = true;
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
 			System.setProperty("apple.awt.application.name", "Alien Invasion");
-			path = "~/Downloads";
 		}
 		AlienInvasion gameClass = new AlienInvasion();
 		gameClass.setup();
@@ -66,11 +65,16 @@ public class AlienInvasion implements ActionListener {
 		fileMenu = new JMenu("File");
 		exitMenuItem = new JMenuItem();
 		if (onMac) {
-			exitMenuItem.setText("Close");
+			exitMenuItem.setText("Close Window");
 		} else {
 			exitMenuItem.setText("Exit");
 		}
+		backDev = new JButton("Back [");
+		forwDev = new JButton("Forward ]");
+		endGameDev = new JButton("End Game (end)");
+		devPane = new JFrame("Developer Panel");
 		infoItem = new JMenuItem("Project Info");
+		openDevPaneItem = new JMenuItem("Open Developer Panel");
 		spawnPowerfulAliensCxb = new JCheckBox("Spawn Powerful Aliens");
 		spawnAsteroidsCxb = new JCheckBox("Spawn Asteroids");
 		toggleDevToolsItem = new JMenuItem("Toggle Developer Shortcuts");
@@ -107,13 +111,15 @@ public class AlienInvasion implements ActionListener {
 		int commandKey = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 		if (onMac) {
 			fullScreenItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, commandKey));
-			toggleDevToolsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, commandKey | KeyEvent.SHIFT_MASK));
-			easyMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, commandKey | KeyEvent.CTRL_MASK));
-			mediumMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, commandKey | KeyEvent.CTRL_MASK));
-			hardMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, commandKey | KeyEvent.CTRL_MASK));
+			toggleDevToolsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, commandKey | KeyEvent.ALT_MASK));
+			openDevPaneItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, commandKey | KeyEvent.SHIFT_MASK));
+			easyMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, commandKey | KeyEvent.CTRL_MASK));
+			mediumMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2, commandKey | KeyEvent.CTRL_MASK));
+			hardMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3, commandKey | KeyEvent.CTRL_MASK));
 			newGameItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, commandKey | KeyEvent.SHIFT_MASK));
 			preferencesMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_COMMA, commandKey));
-			helpWithControlsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, commandKey | KeyEvent.SHIFT_MASK));
+			helpWithControlsItem
+					.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, commandKey | KeyEvent.SHIFT_MASK));
 			exitMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, commandKey));
 			writeStatsToFItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, commandKey | KeyEvent.ALT_MASK));
 		} else {
@@ -131,13 +137,27 @@ public class AlienInvasion implements ActionListener {
 					.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.ALT_MASK | KeyEvent.CTRL_MASK));
 		}
 	}
+	
+	public void devPane() {
+		JPanel ppanel = new JPanel();
+		ppanel.add(endGameDev);
+		ppanel.add(backDev);
+		ppanel.add(forwDev);
+		devPane.add(ppanel);
+		devPane.setVisible(true);
+		devPane.pack();
+		endGameDev.addActionListener(this);
+		backDev.addActionListener(this);
+		forwDev.addActionListener(this);
+	}
 
 	void addMenubar() {
-		fileMenu.add(toggleDevToolsItem);
 		fileMenu.add(currentLevelMenu);
 		fileMenu.addSeparator();
 		fileMenu.add(newGameItem);
 		fileMenu.add(preferencesMenuItem);
+		fileMenu.addSeparator();
+		fileMenu.add(toggleDevToolsItem);
 		fileMenu.addSeparator();
 		fileMenu.add(writeStatsToFItem);
 		fileMenu.add(exitMenuItem);
@@ -169,6 +189,7 @@ public class AlienInvasion implements ActionListener {
 		toggleDevToolsItem.addActionListener(this);
 		fullScreenItem.addActionListener(this);
 		writeStatsToFItem.addActionListener(this);
+		openDevPaneItem.addActionListener(this);
 	}
 
 	void openPreferences() {
@@ -236,11 +257,15 @@ public class AlienInvasion implements ActionListener {
 		ObjectManagerP1.spawnAsteroids = spawnAsteroidsCxb.isSelected();
 		isSaved = true;
 	}
-
+	
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		if (arg0.getSource() == exitMenuItem) {
-			System.exit(0);
+			if (onMac) {
+				frame.dispose();
+			} else {
+				System.exit(0);
+			}
 		}
 		if (arg0.getSource() == preferencesMenuItem) {
 			openPreferences();
@@ -313,8 +338,30 @@ public class AlienInvasion implements ActionListener {
 		if (arg0.getSource() == toggleDevToolsItem) {
 			if (GamePanel.developerTools) {
 				GamePanel.developerTools = false;
+				fileMenu.removeAll();
+				fileMenu.removeAll();
+				fileMenu.add(currentLevelMenu);
+				fileMenu.addSeparator();
+				fileMenu.add(newGameItem);
+				fileMenu.add(preferencesMenuItem);
+				fileMenu.addSeparator();
+				fileMenu.add(toggleDevToolsItem);
+				fileMenu.addSeparator();
+				fileMenu.add(writeStatsToFItem);
+				fileMenu.add(exitMenuItem);
 			} else if (!GamePanel.developerTools) {
 				GamePanel.developerTools = true;
+				fileMenu.removeAll();
+				fileMenu.add(currentLevelMenu);
+				fileMenu.addSeparator();
+				fileMenu.add(newGameItem);
+				fileMenu.add(preferencesMenuItem);
+				fileMenu.addSeparator();
+				fileMenu.add(toggleDevToolsItem);
+				fileMenu.add(openDevPaneItem);
+				fileMenu.addSeparator();
+				fileMenu.add(writeStatsToFItem);
+				fileMenu.add(exitMenuItem);
 			}
 		}
 		if (arg0.getSource() == fullScreenItem) {
@@ -338,6 +385,27 @@ public class AlienInvasion implements ActionListener {
 				content = "Score: " + ObjectManagerP2.score + "\n\nAliens Killed: " + ObjectManagerP2.aliensKilled;
 			}
 			writeTextToClipboard(content);
+		}
+		if (arg0.getSource() == openDevPaneItem) {
+			devPane();
+		}
+		if (arg0.getSource() == backDev) {
+			if (GamePanel.currentState == GamePanel.MENU) {
+				GamePanel.currentState = GamePanel.WON;
+			} else {
+				GamePanel.currentState--;
+			}
+		}
+		if (arg0.getSource() == forwDev) {
+			if (GamePanel.currentState == GamePanel.WON) {
+				GamePanel.currentState = GamePanel.MENU;
+			} else {
+				GamePanel.currentState++;
+			}
+		}
+		if (arg0.getSource() == endGameDev) {
+			GamePanel.currentState = GamePanel.GAME2;
+			ObjectManagerP2.aliensKilled = 40;
 		}
 	}
 
