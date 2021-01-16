@@ -19,7 +19,7 @@ public class ObjectManagerP1 implements ActionListener {
 	public static boolean gotImage = false;
 	public static boolean spawnPowerfulAliens = true;
 	public static boolean spawnAsteroids = true;
-	int score = 0;
+	public static int score = 0;
 	int speed = 1;
 	int aliensWhoFellBackToEarth = 0;
 	Rocketship rocketShip;

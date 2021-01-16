@@ -334,12 +334,6 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			}
 			useProjectile = false;
 		}
-		if (arg0.getKeyCode() == KeyEvent.VK_ESCAPE) {
-			pauseGame();
-		}
-		if (arg0.getKeyCode() == KeyEvent.VK_F3) {
-			hideMenus();
-		}
 	}
 
 	@Override

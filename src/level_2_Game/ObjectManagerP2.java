@@ -17,9 +17,10 @@ public class ObjectManagerP2 implements ActionListener {
 	public static BufferedImage image;
 	public static boolean needImage = true;
 	public static boolean gotImage = false;
+	public static boolean scoreSet = false;
 	Car car;
 	int speed;
-	int score;
+	public static int score;
 	public static int aliensKilled = 0;
 	int aliensWhoGotAway = 0;
 	public static Timer increaseSpeed;
@@ -56,6 +57,7 @@ public class ObjectManagerP2 implements ActionListener {
 	}
 
 	void setScore(int score) {
+		scoreSet = true;
 		this.score = score;
 	}
 
