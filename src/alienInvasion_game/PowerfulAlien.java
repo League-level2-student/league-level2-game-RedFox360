@@ -1,4 +1,4 @@
-package level_2_Game;
+package alienInvasion_game;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -6,30 +6,36 @@ import java.awt.image.BufferedImage;
 
 import javax.imageio.ImageIO;
 
-public class Asteroid extends GameObject {
+public class PowerfulAlien extends GameObject {
+
+	int speed;
 	public static BufferedImage image;
 	public static boolean needImage = true;
 	public static boolean gotImage = false;
 
-	public Asteroid(int x, int y, int width, int height) {
+	public PowerfulAlien(int x, int y, int width, int height, int speed) {
 		super(x, y, width, height);
-		this.speed = 1;
+		this.speed = speed;
 		if (needImage) {
-			loadImage("asteroid.png");
+			loadImage("powerful_alien.png");
 		}
 	}
-	
+
 	public void update() {
 		super.update();
 		y += speed;
+	}
+
+	public PowerfulAlienBullet getBullet() {
+		return new PowerfulAlienBullet(x + width / 2, y + 35, 24, 90);
 	}
 
 	public void draw(Graphics g) {
 		if (gotImage) {
 			g.drawImage(image, x, y, width, height, null);
 		} else {
-			g.setColor(new Color(115, 92, 78));
-			g.fillRect(x, y, width, height);
+			g.setColor(Color.PINK);
+			g.drawRect(x, y, width, height);
 		}
 	}
 

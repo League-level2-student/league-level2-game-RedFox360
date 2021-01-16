@@ -1,4 +1,4 @@
-package level_2_Game;
+package alienInvasion_game;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -193,6 +193,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		}
 		if (rocketShip.isActive == false) {
 			currentState++;
+			manager1.stop();
 			clearAll();
 			manager2.setScore(manager1.getScore());
 			manager2.start();
@@ -270,6 +271,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 				currentState = MENU;
 			} else if (currentState == MENU) {
 				clearAll();
+				manager1.start();
 				currentState = GAME;
 			}
 		}

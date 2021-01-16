@@ -1,4 +1,4 @@
-package level_2_Game;
+package alienInvasion_game;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -45,21 +45,31 @@ public class ObjectManagerP1 implements ActionListener {
 			loadImage("space.png");
 		}
 		alienSpawn = new Timer(1750, this);
-		alienSpawn.start();
 		asteroidSpawn = new Timer(6000, this);
-		asteroidSpawn.start();
 		increaseSpeed = new Timer(20000, this);
-		increaseSpeed.start();
 		powerupSpawn = new Timer(15000, this);
-		powerupSpawn.start();
 		powerfulAlienSpawn = new Timer(3000, this);
-		powerfulAlienSpawn.start();
 		powerfulAlienBulletSpawn = new Timer(4000, this);
-		powerfulAlienBulletSpawn.start();
 		timeLimit = new Timer(50000, this);
+	}
+	public void start() {
+		alienSpawn.start();
+		asteroidSpawn.start();
+		increaseSpeed.start();
+		powerupSpawn.start();
+		powerfulAlienSpawn.start();
+		powerfulAlienBulletSpawn.start();
 		timeLimit.start();
 	}
-
+	public void stop() {
+		alienSpawn.stop();
+		asteroidSpawn.stop();
+		increaseSpeed.stop();
+		powerupSpawn.stop();
+		powerfulAlienSpawn.stop();
+		powerfulAlienBulletSpawn.stop();
+		timeLimit.stop();
+	}
 	void addAlien() {
 		aliens.add(new Alien(random.nextInt(AlienInvasion.WIDTH), 0, 50, 50, speed));
 	}
@@ -351,7 +361,7 @@ public class ObjectManagerP1 implements ActionListener {
 			}
 			if (arg0.getSource() == timeLimit) {
 				JOptionPane.showMessageDialog(null, "Your rocket is failing...you are falling back to Earth...");
-				GamePanel.currentState++;
+				rocketShip.isActive = false;
 			}
 		}
 	}

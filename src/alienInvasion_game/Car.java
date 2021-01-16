@@ -1,4 +1,4 @@
-package level_2_Game;
+package alienInvasion_game;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -6,41 +6,46 @@ import java.awt.image.BufferedImage;
 
 import javax.imageio.ImageIO;
 
-public class Alien2 extends GameObject {
+public class Car extends GameObject {
 	public static BufferedImage image;
 	public static boolean needImage = true;
 	public static boolean gotImage = false;
-	
-	public Alien2(int x, int y, int width, int height, int speed) {
+
+	public Car(int x, int y, int width, int height) {
 		super(x, y, width, height);
-		this.speed = speed;
+		this.speed = 15;
 		if (needImage) {
-			loadImage("alien.png");
+			loadImage("car.png");
 		}
-	}
-
-	public void update(Car c) {
-		super.update();
-		x += speed;
-		if (x < c.x) {
-			if (y > c.y) {
-				y -= speed;
-			} else if (y < c.y) {
-				y += speed;
-			} else if (x > c.x) {
-				x -= speed;
-			}
-		}
-
 	}
 
 	public void draw(Graphics g) {
 		if (gotImage) {
 			g.drawImage(image, x, y, width, height, null);
 		} else {
-			g.setColor(Color.YELLOW);
+			g.setColor(Color.DARK_GRAY);
 			g.fillRect(x, y, width, height);
 		}
+	}
+
+	public void up() {
+		y -= speed;
+	}
+
+	public void down() {
+		y += speed;
+	}
+
+	public void left() {
+		x -= speed;
+	}
+
+	public void right() {
+		x += speed;
+	}
+
+	public Bullet getBullet() {
+		return new Bullet(x + width / 2, y + 35, 80, 20);
 	}
 
 	void loadImage(String imageFile) {
