@@ -25,10 +25,15 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	public static final int GAME3 = 3;
 	public static final int END = 4;
 	public static final int WON = 5;
+	public static final int EASY = 0;
+	public static final int MEDIUM = 1;
+	public static final int HARD = 2;
 	public static int currentState = MENU;
+	public static int currentMode = MEDIUM;
 	public static boolean wonGame = false;
 	public static boolean lostGame = false;
 	public static String endText = "Thanks for playing Alien Invasion!";
+	public static boolean developerTools = false;
 	Font titleFont;
 	Font normalFont;
 	Font scoreFont;
@@ -41,8 +46,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	public static Car car;
 	static boolean hideMenus;
 	static int timerLength = 500;
-	ObjectManagerP1 manager1;
-	ObjectManagerP2 manager2;
+	static ObjectManagerP1 manager1;
+	static ObjectManagerP2 manager2;
 
 	public GamePanel() {
 		titleFont = new Font("Consolas", Font.PLAIN, 50);
@@ -75,6 +80,17 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			drawEndState(g);
 		} else {
 			drawWonState(g);
+		}
+		update();
+	}
+
+	public void update() {
+		if (currentMode == EASY) {
+			timerLength = 250;
+		} else if (currentState == MEDIUM) {
+			timerLength = 500;
+		} else {
+			timerLength = 1250;
 		}
 	}
 
@@ -179,9 +195,16 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			clearAll();
 			manager2.setScore(manager1.getScore());
 			manager2.start();
-			timerLength = 500;
+			timerLength = 1000;
 			projectileTimer.setDelay(timerLength);
 		}
+	}
+	
+	public static void reload() {
+		manager1 = new ObjectManagerP1(rocketShip);
+		manager2 = new ObjectManagerP2(car);
+		manager1.update();
+		manager2.update();
 	}
 
 	public void updateGame2State() {
@@ -190,6 +213,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		}
 		if (car.isActive == false) {
 			currentState++;
+			timerLength = 500;
+			projectileTimer.setDelay(timerLength);
 			clearAll();
 		}
 	}
@@ -206,7 +231,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		}
 	}
 
-	void clearAll() {
+	public void clearAll() {
 		manager1.aliens.clear();
 		manager1.projectiles.clear();
 		manager1.asteroids.clear();
@@ -219,9 +244,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		manager1.speed = 1;
 		manager2.speed = 1;
 	}
-	
-	public static void setAlienSpawnRate(int rateSecs) {
-		int rate = rateSecs*1000;
+
+	public static void setAlienSpawnRate(double d) {
+		int rate = (int) d * 1000;
 		ObjectManagerP1.alienSpawn.setDelay(rate);
 		ObjectManagerP2.alienSpawn.setDelay(rate);
 	}
@@ -230,11 +255,12 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	public void keyPressed(KeyEvent arg0) {
 		if (arg0.getKeyCode() == KeyEvent.VK_ENTER) {
 			if (currentState == WON || currentState == END) {
-				rocketShip.isActive = true;
 				car.isActive = true;
 				rocketShip.update();
 				car.update();
 				endText = "";
+				timerLength = 500;
+				projectileTimer.setDelay(timerLength);
 				rocketShip = new Rocketship(400, 700, 60, 60, 20);
 				car = new Car(700, 700, 100, 100);
 				manager1 = new ObjectManagerP1(rocketShip);
@@ -246,18 +272,24 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 				currentState = GAME;
 			}
 		}
-		if (arg0.getKeyCode() == KeyEvent.VK_CLOSE_BRACKET) {
-			if (currentState == WON) {
-				currentState = MENU;
-			} else {
-				currentState++;
+		if (developerTools) {
+			if (arg0.getKeyCode() == KeyEvent.VK_END) {
+				currentState = GAME2;
+				ObjectManagerP2.aliensKilled = 40;
 			}
-		}
-		if (arg0.getKeyCode() == KeyEvent.VK_OPEN_BRACKET) {
-			if (currentState == MENU) {
-				currentState = WON;
-			} else {
-				currentState--;
+			if (arg0.getKeyCode() == KeyEvent.VK_CLOSE_BRACKET) {
+				if (currentState == WON) {
+					currentState = MENU;
+				} else {
+					currentState++;
+				}
+			}
+			if (arg0.getKeyCode() == KeyEvent.VK_OPEN_BRACKET) {
+				if (currentState == MENU) {
+					currentState = WON;
+				} else {
+					currentState--;
+				}
 			}
 		}
 		if (arg0.getKeyCode() == KeyEvent.VK_UP || arg0.getKeyChar() == 'w') {
@@ -296,9 +328,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			} else if (currentState == MENU) {
 				JOptionPane.showMessageDialog(null,
 						"GOAL: Battle aliens in space and on Earth, and when you finish, answer a riddle to win the game.\n"
-						+ "The clock power up decreases the cooldown between firing projectiles.\n"
-						+ "Developed by Sameer Prakash 2020\n"
-						+ "View code on Github: https://github.com/League-level2-student/league-level2-game-RedFox360");
+								+ "The clock power up decreases the cooldown between firing projectiles.\n"
+								+ "Developed by Sameer Prakash 2020\n"
+								+ "View code on Github: https://github.com/League-level2-student/league-level2-game-RedFox360");
 			}
 			useProjectile = false;
 		}
@@ -309,6 +341,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			hideMenus();
 		}
 	}
+
 	@Override
 	public void keyReleased(KeyEvent arg0) {
 
@@ -331,6 +364,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		}
 		repaint();
 	}
+
 	public static void hideMenus() {
 		if (hideMenus) {
 			hideMenus = false;
@@ -338,6 +372,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			hideMenus = true;
 		}
 	}
+
 	public static void pauseGame() {
 		if (gamePaused) {
 			gamePaused = false;

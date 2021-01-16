@@ -20,7 +20,7 @@ public class ObjectManagerP2 implements ActionListener {
 	Car car;
 	int speed;
 	int score;
-	int aliensKilled = 0;
+	public static int aliensKilled = 0;
 	int aliensWhoGotAway = 0;
 	public static Timer increaseSpeed;
 	public static Timer alienSpawn;
@@ -30,6 +30,7 @@ public class ObjectManagerP2 implements ActionListener {
 	Random random = new Random();
 	ArrayList<Alien2> aliens = new ArrayList<Alien2>();
 	ArrayList<Bullet> bullets = new ArrayList<Bullet>();
+	ArrayList<Alien> verticalAlien = new ArrayList<Alien>();
 	ArrayList<TimerPowerup> powerups = new ArrayList<TimerPowerup>();
 
 	public ObjectManagerP2(Car c) {

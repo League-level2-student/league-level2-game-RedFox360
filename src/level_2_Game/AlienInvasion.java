@@ -3,12 +3,13 @@ package level_2_Game;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.net.URL;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -17,15 +18,15 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.KeyStroke;
 
 public class AlienInvasion implements ActionListener {
 	JFrame frame, preferences;
 	GamePanel panel;
 	JMenuBar menubar;
-	JMenu fileMenu, viewMenu, helpMenu;
-	JMenuItem exitMenuItem, preferencesMenuItem, hideStatsItem, helpWithControlsItem, infoItem, githubItem,
-			pauseGameItem;
+	JMenu fileMenu, viewMenu, helpMenu, currentLevelMenu;
+	JMenuItem exitMenuItem, preferencesMenuItem, hideStatsItem, helpWithControlsItem, infoItem, githubItem, newGameItem,
+			pauseGameItem, easyMenuItem, mediumMenuItem, hardMenuItem, toggleDevToolsItem, fullScreenItem, reloadItem;
+	JCheckBox spawnPowerfulAliensCxb, spawnAsteroidsCxb;
 	boolean isSaved = false;
 	public static int WIDTH = 800;
 	public static int HEIGHT = 800;
@@ -38,16 +39,13 @@ public class AlienInvasion implements ActionListener {
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
 			System.setProperty("apple.awt.application.name", "Alien Invasion");
 		}
-		else {
-			
-		}
 		AlienInvasion gameClass = new AlienInvasion();
 		gameClass.setup();
 		gameClass.addMenubar();
 	}
 
 	public AlienInvasion() {
-		frame = new JFrame();
+		frame = new JFrame("Alien Invasion");
 		panel = new GamePanel();
 	}
 
@@ -56,8 +54,18 @@ public class AlienInvasion implements ActionListener {
 		fileMenu = new JMenu("File");
 		exitMenuItem = new JMenuItem("Exit");
 		infoItem = new JMenuItem("Project Info");
+		spawnPowerfulAliensCxb = new JCheckBox("Spawn Powerful Aliens");
+		spawnAsteroidsCxb = new JCheckBox("Spawn Asteroids");
+		toggleDevToolsItem = new JMenuItem("Toggle Developer Shortcuts");
+		currentLevelMenu = new JMenu("Current Mode");
+		reloadItem = new JMenuItem("Reload");
+		fullScreenItem = new JMenuItem("Zoom");
+		easyMenuItem = new JMenuItem("Easy");
+		mediumMenuItem = new JMenuItem("Medium");
+		hardMenuItem = new JMenuItem("Hard");
 		viewMenu = new JMenu("View");
 		helpMenu = new JMenu("Info");
+		newGameItem = new JMenuItem("New Game");
 		pauseGameItem = new JMenuItem("Pause Game");
 		githubItem = new JMenuItem("View Source Code");
 		helpWithControlsItem = new JMenuItem("Controls");
@@ -70,20 +78,31 @@ public class AlienInvasion implements ActionListener {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.addKeyListener(panel);
 		frame.setResizable(false);
-		setFonts();
+		spawnPowerfulAliensCxb.setSelected(true);
+		spawnAsteroidsCxb.setSelected(true);
 	}
 
 	void addMenubar() {
+		fileMenu.add(toggleDevToolsItem);
+		fileMenu.add(currentLevelMenu);
+		fileMenu.addSeparator();
+		fileMenu.add(newGameItem);
 		fileMenu.add(preferencesMenuItem);
 		fileMenu.add(exitMenuItem);
 		viewMenu.add(hideStatsItem);
 		viewMenu.add(pauseGameItem);
+		viewMenu.addSeparator();
+		viewMenu.add(fullScreenItem);
+		viewMenu.add(reloadItem);
 		helpMenu.add(infoItem);
 		helpMenu.add(githubItem);
 		helpMenu.add(helpWithControlsItem);
 		menubar.add(fileMenu);
 		menubar.add(viewMenu);
 		menubar.add(helpMenu);
+		currentLevelMenu.add(easyMenuItem);
+		currentLevelMenu.add(mediumMenuItem);
+		currentLevelMenu.add(hardMenuItem);
 		exitMenuItem.addActionListener(this);
 		preferencesMenuItem.addActionListener(this);
 		hideStatsItem.addActionListener(this);
@@ -91,6 +110,13 @@ public class AlienInvasion implements ActionListener {
 		infoItem.addActionListener(this);
 		githubItem.addActionListener(this);
 		pauseGameItem.addActionListener(this);
+		newGameItem.addActionListener(this);
+		easyMenuItem.addActionListener(this);
+		mediumMenuItem.addActionListener(this);
+		hardMenuItem.addActionListener(this);
+		toggleDevToolsItem.addActionListener(this);
+		fullScreenItem.addActionListener(this);
+		reloadItem.addActionListener(this);
 	}
 
 	void openPreferences() {
@@ -109,6 +135,8 @@ public class AlienInvasion implements ActionListener {
 		ppanel.add(sizeY);
 		ppanel.add(label2);
 		ppanel.add(alienSpawnRate);
+		ppanel.add(spawnPowerfulAliensCxb);
+		ppanel.add(spawnAsteroidsCxb);
 		ppanel.add(saveAll);
 		ppanel.add(resetAll);
 		ppanel.add(closePref);
@@ -118,13 +146,17 @@ public class AlienInvasion implements ActionListener {
 		sizeX.setPreferredSize(new Dimension(200, 30));
 		sizeY.setPreferredSize(new Dimension(200, 30));
 		alienSpawnRate.setPreferredSize(new Dimension(330, 30));
+		spawnPowerfulAliensCxb.setPreferredSize(new Dimension(240, 30));
+		spawnAsteroidsCxb.setPreferredSize(new Dimension(240, 30));
 		alienSpawnRate.addActionListener(this);
 		closePref.addActionListener(this);
 		resetAll.addActionListener(this);
 		preferences.add(ppanel);
 		preferences.setVisible(true);
-		preferences.setPreferredSize(new Dimension(500, 150));
+		preferences.setPreferredSize(new Dimension(500, 180));
 		preferences.pack();
+		spawnPowerfulAliensCxb.addActionListener(this);
+		spawnAsteroidsCxb.addActionListener(this);
 	}
 
 	private static void openWebpage(String urlString) {
@@ -144,30 +176,17 @@ public class AlienInvasion implements ActionListener {
 
 		}
 		try {
-			GamePanel.setAlienSpawnRate(Integer.parseInt(alienSpawnRate.getText()));
+			GamePanel.setAlienSpawnRate(Double.parseDouble(alienSpawnRate.getText()));
 		} catch (Exception e) {
 
 		}
+		ObjectManagerP1.spawnPowerfulAliens = spawnPowerfulAliensCxb.isSelected();
+		ObjectManagerP1.spawnAsteroids = spawnAsteroidsCxb.isSelected();
 		isSaved = true;
-	}
-	
-	void setFonts() {
-		Font menuFont = new Font("Consolas", Font.PLAIN, 16);
-		fileMenu.setFont(menuFont);
-		viewMenu.setFont(menuFont);
-		helpMenu.setFont(menuFont);
-		exitMenuItem.setFont(menuFont);
-		preferencesMenuItem.setFont(menuFont);
-		hideStatsItem.setFont(menuFont);
-		helpWithControlsItem.setFont(menuFont);
-		infoItem.setFont(menuFont);
-		githubItem.setFont(menuFont);
-		pauseGameItem.setFont(menuFont);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		// TODO Auto-generated method stub
 		if (arg0.getSource() == exitMenuItem) {
 			System.exit(0);
 		}
@@ -183,6 +202,8 @@ public class AlienInvasion implements ActionListener {
 			HEIGHT = 800;
 			GamePanel.setAlienSpawnRate(1);
 			frame.setSize(WIDTH, HEIGHT);
+			spawnPowerfulAliensCxb.setSelected(true);
+			spawnAsteroidsCxb.setSelected(true);
 		}
 		if (arg0.getSource() == hideStatsItem) {
 			GamePanel.hideMenus();
@@ -190,7 +211,8 @@ public class AlienInvasion implements ActionListener {
 		if (arg0.getSource() == helpWithControlsItem) {
 			JOptionPane.showMessageDialog(frame,
 					"GAME CONTROLS: Press the arrow keys or use WASD to move around    Use space to shoot projectiles at aliens.\n"
-							+ "OTHER CONTROLS: Press escape to pause the game    Press F3 to hide the menus.");
+							+ "OTHER CONTROLS: Press escape to pause the game    Press F3 to hide the menus.\n"
+							+ "DEVELOPER CONTROLS: Press the bracket keys [ ] to toggle between Game Phases    Press the end key to go to the end question");
 		}
 		if (arg0.getSource() == infoItem) {
 			JOptionPane.showMessageDialog(frame,
@@ -220,6 +242,44 @@ public class AlienInvasion implements ActionListener {
 				preferences.dispose();
 			}
 		}
+		if (arg0.getSource() == newGameItem) {
+			GamePanel.currentState = GamePanel.MENU;
+		}
+		if (arg0.getSource() == spawnPowerfulAliensCxb || arg0.getSource() == spawnAsteroidsCxb) {
+			isSaved = false;
+		}
+		if (arg0.getSource() == easyMenuItem) {
+			GamePanel.currentMode = GamePanel.EASY;
+		}
+		if (arg0.getSource() == mediumMenuItem) {
+			GamePanel.currentMode = GamePanel.MEDIUM;
+		}
+		if (arg0.getSource() == hardMenuItem) {
+			GamePanel.currentMode = GamePanel.HARD;
+		}
+		if (arg0.getSource() == toggleDevToolsItem) {
+			if (GamePanel.developerTools) {
+				GamePanel.developerTools = false;
+			} else if (!GamePanel.developerTools) {
+				GamePanel.developerTools = true;
+			}
+		}
+		if (arg0.getSource() == fullScreenItem) {
+			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+			int screenWidth = (int) screenSize.getWidth();
+			int screenHeight = (int) screenSize.getHeight();
+			if (WIDTH == screenWidth && HEIGHT == screenHeight) {
+				WIDTH = 800;
+				HEIGHT = 800;
+			} else {
+				WIDTH = screenWidth;
+				HEIGHT = screenHeight;
+			}
+			frame.setSize(WIDTH, HEIGHT);
+		}
+		if (arg0.getSource() == reloadItem) {
+			GamePanel.reload();
+		}
 	}
-
+	
 }

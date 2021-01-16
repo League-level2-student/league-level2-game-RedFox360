@@ -17,6 +17,8 @@ public class ObjectManagerP1 implements ActionListener {
 	public static BufferedImage image;
 	public static boolean needImage = true;
 	public static boolean gotImage = false;
+	public static boolean spawnPowerfulAliens = true;
+	public static boolean spawnAsteroids = true;
 	int score = 0;
 	int speed = 1;
 	int aliensWhoFellBackToEarth = 0;
@@ -40,7 +42,7 @@ public class ObjectManagerP1 implements ActionListener {
 		if (needImage) {
 			loadImage("space.png");
 		}
-		alienSpawn = new Timer(1000, this);
+		alienSpawn = new Timer(1750, this);
 		alienSpawn.start();
 		asteroidSpawn = new Timer(6000, this);
 		asteroidSpawn.start();
@@ -59,7 +61,9 @@ public class ObjectManagerP1 implements ActionListener {
 	}
 
 	void addPowerfulAlien() {
-		powerfulAliens.add(new PowerfulAlien(random.nextInt(AlienInvasion.WIDTH), 0, 50, 50, speed));
+		if (spawnPowerfulAliens && GamePanel.currentMode != GamePanel.EASY) {
+			powerfulAliens.add(new PowerfulAlien(random.nextInt(AlienInvasion.WIDTH), 0, 50, 50, speed));
+		}
 	}
 
 	void addProjectile(Projectile p) {
@@ -67,7 +71,9 @@ public class ObjectManagerP1 implements ActionListener {
 	}
 
 	void addAsteroid() {
-		asteroids.add(new Asteroid(random.nextInt(AlienInvasion.WIDTH), 0, 80, 80));
+		if (spawnAsteroids) {
+			asteroids.add(new Asteroid(random.nextInt(AlienInvasion.WIDTH), 0, 80, 80));
+		}
 	}
 
 	void addPowerup() {
@@ -82,7 +88,9 @@ public class ObjectManagerP1 implements ActionListener {
 			if (alien.y > AlienInvasion.HEIGHT) {
 				alien.isActive = false;
 				aliensWhoFellBackToEarth += 1;
+				if (score != 0) {
 				score -= 1;
+				}
 			}
 		}
 		for (Iterator<Projectile> iterator = projectiles.iterator(); iterator.hasNext();) {
