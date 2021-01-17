@@ -195,10 +195,13 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			currentState++;
 			manager1.stop();
 			clearAll();
+			timerLength = 1000;
+			car = new Car(700, 400, 100, 100);
+			manager2 = new ObjectManagerP2(car);
 			manager2.setScore(manager1.getScore());
 			manager2.start();
-			timerLength = 1000;
 			projectileTimer.setDelay(timerLength);
+			ObjectManagerP1.timeLeft = 50;
 		}
 	}
 	
@@ -264,7 +267,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 				timerLength = 500;
 				projectileTimer.setDelay(timerLength);
 				rocketShip = new Rocketship(400, 700, 60, 60, 20);
-				car = new Car(700, 700, 100, 100);
+				car = new Car(700, 400, 100, 100);
 				manager1 = new ObjectManagerP1(rocketShip);
 				manager2 = new ObjectManagerP2(car);
 				clearAll();

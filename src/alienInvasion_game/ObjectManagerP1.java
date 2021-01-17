@@ -5,11 +5,14 @@ import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
@@ -19,6 +22,9 @@ public class ObjectManagerP1 implements ActionListener {
 	public static boolean gotImage = false;
 	public static boolean spawnPowerfulAliens = true;
 	public static boolean spawnAsteroids = true;
+	public static boolean easterEggSpawned = false;
+	public static boolean terminalSpawnAliens = true;
+	public static boolean spawnPowerups = true;
 	public static int score = 0;
 	int speed = 1;
 	int aliensWhoFellBackToEarth = 0;
@@ -29,6 +35,7 @@ public class ObjectManagerP1 implements ActionListener {
 	ArrayList<TimerPowerup> powerups = new ArrayList<TimerPowerup>();
 	ArrayList<PowerfulAlien> powerfulAliens = new ArrayList<PowerfulAlien>();
 	ArrayList<PowerfulAlienBullet> powerfulAliensBullets = new ArrayList<PowerfulAlienBullet>();
+	EasterEgg easterEgg;
 	Random random = new Random();
 	static int timeLeft = 50;
 	public static Timer alienSpawn;
@@ -38,6 +45,7 @@ public class ObjectManagerP1 implements ActionListener {
 	public static Timer asteroidSpawn;
 	public static Timer powerupSpawn;
 	public static Timer timeLimit;
+	public static Timer spawnEEgg;
 
 	public ObjectManagerP1(Rocketship r) {
 		rocketShip = r;
@@ -50,9 +58,12 @@ public class ObjectManagerP1 implements ActionListener {
 		powerupSpawn = new Timer(15000, this);
 		powerfulAlienSpawn = new Timer(3000, this);
 		powerfulAlienBulletSpawn = new Timer(4000, this);
-		timeLimit = new Timer(50000, this);
+		spawnEEgg = new Timer(10000, this);
+		timeLimit = new Timer(70000, this);
 	}
+
 	public void start() {
+		timeLeft = 50;
 		alienSpawn.start();
 		asteroidSpawn.start();
 		increaseSpeed.start();
@@ -61,6 +72,7 @@ public class ObjectManagerP1 implements ActionListener {
 		powerfulAlienBulletSpawn.start();
 		timeLimit.start();
 	}
+
 	public void stop() {
 		alienSpawn.stop();
 		asteroidSpawn.stop();
@@ -70,8 +82,15 @@ public class ObjectManagerP1 implements ActionListener {
 		powerfulAlienBulletSpawn.stop();
 		timeLimit.stop();
 	}
+
 	void addAlien() {
-		aliens.add(new Alien(random.nextInt(AlienInvasion.WIDTH), 0, 50, 50, speed));
+		if (terminalSpawnAliens) {
+			aliens.add(new Alien(random.nextInt(AlienInvasion.WIDTH), 0, 50, 50, speed));
+		}
+	}
+
+	void addEasterEgg() {
+		easterEgg = new EasterEgg(random.nextInt(AlienInvasion.WIDTH), random.nextInt(AlienInvasion.HEIGHT), 100, 100);
 	}
 
 	void addPowerfulAlien() {
@@ -91,8 +110,10 @@ public class ObjectManagerP1 implements ActionListener {
 	}
 
 	void addPowerup() {
-		powerups.add(
-				new TimerPowerup(random.nextInt(AlienInvasion.WIDTH), random.nextInt(AlienInvasion.HEIGHT), 100, 100));
+		if (spawnPowerups) {
+			powerups.add(new TimerPowerup(random.nextInt(AlienInvasion.WIDTH), random.nextInt(AlienInvasion.HEIGHT),
+					100, 100));
+		}
 	}
 
 	public static int getTime() {
@@ -100,37 +121,7 @@ public class ObjectManagerP1 implements ActionListener {
 	}
 
 	public void update() {
-		for (Iterator<Alien> iterator = aliens.iterator(); iterator.hasNext();) {
-			Alien alien = iterator.next();
-			alien.update();
-			if (alien.y > AlienInvasion.HEIGHT) {
-				alien.isActive = false;
-				aliensWhoFellBackToEarth += 1;
-				if (score != 0) {
-				score -= 1;
-				}
-			}
-		}
-		for (Iterator<Projectile> iterator = projectiles.iterator(); iterator.hasNext();) {
-			Projectile projectile = iterator.next();
-			projectile.update();
-			if (projectile.y > AlienInvasion.HEIGHT) {
-				projectile.isActive = false;
-				score += 1;
-			}
-		}
-		for (Iterator<Asteroid> iterator = asteroids.iterator(); iterator.hasNext();) {
-			Asteroid asteroid = iterator.next();
-			asteroid.update();
-			if (asteroid.y > AlienInvasion.HEIGHT) {
-				asteroid.isActive = false;
-			}
-		}
-		for (Iterator<TimerPowerup> iterator = powerups.iterator(); iterator.hasNext();) {
-			iterator.next().update();
-		}
-		for (Iterator<PowerfulAlien> iterator = powerfulAliens.iterator(); iterator.hasNext();) {
-			PowerfulAlien alien = iterator.next();
+		for (Alien alien : aliens) {
 			alien.update();
 			if (alien.y > AlienInvasion.HEIGHT) {
 				alien.isActive = false;
@@ -140,12 +131,40 @@ public class ObjectManagerP1 implements ActionListener {
 				}
 			}
 		}
-		for (Iterator<PowerfulAlienBullet> iterator = powerfulAliensBullets.iterator(); iterator.hasNext();) {
-			PowerfulAlienBullet bullet = iterator.next();
+		for (Projectile projectile : projectiles) {
+			projectile.update();
+			if (projectile.y > AlienInvasion.HEIGHT) {
+				projectile.isActive = false;
+				score += 1;
+			}
+		}
+		for (Asteroid asteroid : asteroids) {
+			asteroid.update();
+			if (asteroid.y > AlienInvasion.HEIGHT) {
+				asteroid.isActive = false;
+			}
+		}
+		for (TimerPowerup powerup : powerups) {
+			powerup.update();
+		}
+		for (PowerfulAlien alien : powerfulAliens) {
+			alien.update();
+			if (alien.y > AlienInvasion.HEIGHT) {
+				alien.isActive = false;
+				aliensWhoFellBackToEarth += 1;
+				if (score != 0) {
+					score -= 1;
+				}
+			}
+		}
+		for (PowerfulAlienBullet bullet : powerfulAliensBullets) {
 			bullet.update();
 			if (bullet.y > AlienInvasion.HEIGHT) {
 				bullet.isActive = false;
 			}
+		}
+		if (easterEggSpawned) {
+			easterEgg.update();
 		}
 		rocketShip.update();
 		checkCollision();
@@ -176,6 +195,9 @@ public class ObjectManagerP1 implements ActionListener {
 			g.fillRect(0, 0, AlienInvasion.WIDTH, AlienInvasion.HEIGHT);
 		}
 		rocketShip.draw(g);
+		if (easterEggSpawned) {
+			easterEgg.draw(g);
+		}
 		for (Iterator<Alien> iterator = aliens.iterator(); iterator.hasNext();) {
 			iterator.next().draw(g);
 
@@ -250,30 +272,26 @@ public class ObjectManagerP1 implements ActionListener {
 	}
 
 	public void checkCollision() {
-		for (Iterator<Alien> iterator = aliens.iterator(); iterator.hasNext();) {
-			Alien alien = iterator.next();
+		for (Alien alien : aliens) {
 			if (rocketShip.collisionBox.intersects(alien.collisionBox)) {
 				rocketShip.isActive = false;
 				alien.isActive = false;
 
 			}
-			for (Iterator<Projectile> jterator = projectiles.iterator(); jterator.hasNext();) {
-				Projectile projectile = jterator.next();
+			for (Projectile projectile : projectiles) {
 				if (projectile.collisionBox.intersects(alien.collisionBox)) {
 					projectile.isActive = false;
 					alien.isActive = false;
 					score += 1;
 				}
-				for (Iterator<Asteroid> jiterator = asteroids.iterator(); jiterator.hasNext();) {
-					Asteroid asteroid = jiterator.next();
+				for (Asteroid asteroid : asteroids) {
 					if (projectile.collisionBox.intersects(asteroid.collisionBox)) {
 						projectile.isActive = false;
 					}
 				}
 
 			}
-			for (Iterator<Asteroid> jterator = asteroids.iterator(); jterator.hasNext();) {
-				Asteroid asteroid = jterator.next();
+			for (Asteroid asteroid : asteroids) {
 				if (asteroid.collisionBox.intersects(alien.collisionBox)) {
 					alien.isActive = false;
 				}
@@ -285,52 +303,50 @@ public class ObjectManagerP1 implements ActionListener {
 				}
 			}
 		}
-		for (Iterator<TimerPowerup> iterator = powerups.iterator(); iterator.hasNext();) {
-			TimerPowerup powerup = iterator.next();
+		for (TimerPowerup powerup : powerups) {
 			if (powerup.collisionBox.intersects(rocketShip.collisionBox)) {
 				powerup.isActive = false;
 				GamePanel.halfTimer();
 			}
 		}
-		for (Iterator<PowerfulAlien> iterator = powerfulAliens.iterator(); iterator.hasNext();) {
-			PowerfulAlien alien = iterator.next();
+		for (PowerfulAlien alien : powerfulAliens) {
 			if (alien.collisionBox.intersects(rocketShip.collisionBox)) {
 				rocketShip.isActive = false;
 
 				GamePanel.endText = "Your rocket was hit by a powerful alien.";
 				GamePanel.currentState = GamePanel.END - 1;
 			}
-			for (Iterator<Projectile> jterator = projectiles.iterator(); jterator.hasNext();) {
-				Projectile projectile = jterator.next();
+			for (Projectile projectile : projectiles) {
 				if (alien.collisionBox.intersects(projectile.collisionBox)) {
 					alien.isActive = false;
 					projectile.isActive = false;
 				}
 			}
-			for (Iterator<Asteroid> jterator = asteroids.iterator(); jterator.hasNext();) {
-				Asteroid asteroid = jterator.next();
+			for (Asteroid asteroid : asteroids) {
 				if (alien.collisionBox.intersects(asteroid.collisionBox)) {
 					alien.isActive = false;
 				}
 			}
 		}
-		for (Iterator<PowerfulAlienBullet> iterator = powerfulAliensBullets.iterator(); iterator.hasNext();) {
-			PowerfulAlienBullet bullet = iterator.next();
+		for (PowerfulAlienBullet bullet : powerfulAliensBullets) {
 			if (bullet.collisionBox.intersects(rocketShip.collisionBox)) {
 				rocketShip.isActive = false;
 
 			}
-			for (Iterator<Projectile> jterator = projectiles.iterator(); jterator.hasNext();) {
-				Projectile projectile = jterator.next();
+			for (Projectile projectile : projectiles) {
 				if (bullet.collisionBox.intersects(projectile.collisionBox)) {
 					projectile.isActive = false;
 				}
 			}
-			for (Iterator<Asteroid> jterator = asteroids.iterator(); jterator.hasNext();) {
-				Asteroid asteroid = jterator.next();
+			for (Asteroid asteroid : asteroids) {
 				if (bullet.collisionBox.intersects(asteroid.collisionBox)) {
 					bullet.isActive = false;
 				}
+			}
+		}
+		if (easterEggSpawned) {
+			if (easterEgg.collisionBox.intersects(rocketShip.collisionBox)) {
+
 			}
 		}
 	}
@@ -363,6 +379,20 @@ public class ObjectManagerP1 implements ActionListener {
 				JOptionPane.showMessageDialog(null, "Your rocket is failing...you are falling back to Earth...");
 				rocketShip.isActive = false;
 			}
+			if (arg0.getSource() == spawnEEgg) {
+				addEasterEgg();
+				easterEggSpawned = true;
+			}
+		}
+	}
+
+	public static void playAudioFile(String filename) {
+		try {
+			Clip clip = AudioSystem.getClip();
+			clip.open(AudioSystem.getAudioInputStream(new File(filename)));
+			clip.start();
+		} catch (Exception exc) {
+			exc.printStackTrace(System.out);
 		}
 	}
 }

@@ -35,7 +35,7 @@ public class AlienInvasion implements ActionListener {
 	JMenuItem exitMenuItem, preferencesMenuItem, hideStatsItem, helpWithControlsItem, infoItem, githubItem, newGameItem,
 			pauseGameItem, easyMenuItem, mediumMenuItem, hardMenuItem, toggleDevToolsItem, fullScreenItem,
 			writeStatsToFItem, openDevPaneItem, commandLineItem;
-	JCheckBox spawnPowerfulAliensCxb, spawnAsteroidsCxb;
+	JCheckBox spawnPowerfulAliensCxb, spawnAsteroidsCxb, spawnPowerupsCxb;
 	boolean isSaved = false;
 	public static int WIDTH = 800;
 	public static int HEIGHT = 800;
@@ -86,6 +86,7 @@ public class AlienInvasion implements ActionListener {
 		openDevPaneItem = new JMenuItem("Open Developer Panel");
 		spawnPowerfulAliensCxb = new JCheckBox("Spawn Powerful Aliens");
 		spawnAsteroidsCxb = new JCheckBox("Spawn Asteroids");
+		spawnPowerupsCxb = new JCheckBox("Spawn Power-ups");
 		toggleDevToolsItem = new JMenuItem("Toggle Developer Shortcuts");
 		currentLevelMenu = new JMenu("Current Mode");
 		fullScreenItem = new JMenuItem("Zoom");
@@ -144,7 +145,6 @@ public class AlienInvasion implements ActionListener {
 			helpWithControlsItem
 					.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, commandKey | KeyEvent.SHIFT_MASK));
 			exitMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, commandKey));
-			writeStatsToFItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, commandKey | KeyEvent.ALT_MASK));
 			commandLineItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, commandKey | KeyEvent.SHIFT_MASK));
 		} else {
 			fullScreenItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.VK_CONTROL));
@@ -240,26 +240,29 @@ public class AlienInvasion implements ActionListener {
 		ppanel.add(alienSpawnRate);
 		ppanel.add(spawnPowerfulAliensCxb);
 		ppanel.add(spawnAsteroidsCxb);
+		ppanel.add(spawnPowerupsCxb);
 		ppanel.add(saveAll);
 		ppanel.add(resetAll);
 		ppanel.add(closePref);
 		sizeX.addActionListener(this);
 		sizeY.addActionListener(this);
 		saveAll.addActionListener(this);
-		sizeX.setPreferredSize(new Dimension(200, 30));
-		sizeY.setPreferredSize(new Dimension(200, 30));
-		alienSpawnRate.setPreferredSize(new Dimension(330, 30));
-		spawnPowerfulAliensCxb.setPreferredSize(new Dimension(240, 30));
-		spawnAsteroidsCxb.setPreferredSize(new Dimension(240, 30));
+		sizeX.setPreferredSize(new Dimension(230, 30));
+		sizeY.setPreferredSize(new Dimension(230, 30));
+		alienSpawnRate.setPreferredSize(new Dimension(390, 30));
+		spawnPowerfulAliensCxb.setPreferredSize(new Dimension(175, 30));
+		spawnAsteroidsCxb.setPreferredSize(new Dimension(175, 30));
+		spawnPowerupsCxb.setPreferredSize(new Dimension(175, 30));
 		alienSpawnRate.addActionListener(this);
 		closePref.addActionListener(this);
 		resetAll.addActionListener(this);
 		preferences.add(ppanel);
 		preferences.setVisible(true);
-		preferences.setPreferredSize(new Dimension(500, 180));
+		preferences.setPreferredSize(new Dimension(560, 180));
 		preferences.pack();
 		spawnPowerfulAliensCxb.addActionListener(this);
 		spawnAsteroidsCxb.addActionListener(this);
+		spawnPowerupsCxb.addActionListener(this);
 	}
 
 	private static void openWebpage(String urlString) {
@@ -285,6 +288,8 @@ public class AlienInvasion implements ActionListener {
 		}
 		ObjectManagerP1.spawnPowerfulAliens = spawnPowerfulAliensCxb.isSelected();
 		ObjectManagerP1.spawnAsteroids = spawnAsteroidsCxb.isSelected();
+		ObjectManagerP1.spawnPowerups = spawnPowerupsCxb.isSelected();
+		ObjectManagerP2.spawnPowerups = spawnPowerupsCxb.isSelected();
 		isSaved = true;
 	}
 
@@ -416,22 +421,19 @@ public class AlienInvasion implements ActionListener {
 		}
 		if (arg0.getSource() == enterCmdB) {
 			cmd = cmdtxtfld.getText();
-			if (cmd.equals("powerfulAliens -spawn")) {
-				ObjectManagerP1.spawnPowerfulAliens = false;
-				cmdResult.setText("Powerful aliens will not spawn in this game session.");
-			} else if (cmd.equals("powerfulAliens +spawn")) {
-				ObjectManagerP1.spawnPowerfulAliens = true;
-				cmdResult.setText("Powerful aliens will spawn in this game session.");
-			} else if (cmd.equals("asteroids +spawn")) {
-				ObjectManagerP1.spawnAsteroids = false;
-				cmdResult.setText("Asteroids will not spawn in this game session.");
-			} else if (cmd.equals("asteroids +spawn")) {
-				ObjectManagerP1.spawnAsteroids = true;
-				cmdResult.setText("Asteroids will spawn in this game session.");
-			} else if (cmd.equals("dev toggle")) {
-				toggleDevTools(true);
-			} else if (cmd.equals("dev -pane")) {
-				devPane();
+			if ("toggle aliens -spawn".equals(cmd)) {
+				if (ObjectManagerP1.terminalSpawnAliens) {
+					ObjectManagerP1.terminalSpawnAliens = false;
+					ObjectManagerP2.terminalSpawnAliens = false;
+					cmdResult.setText("Aliens will no longer spawn in this game session");
+				} else if (!ObjectManagerP1.terminalSpawnAliens) {
+					ObjectManagerP1.terminalSpawnAliens = true;
+					ObjectManagerP2.terminalSpawnAliens = true;
+					cmdResult.setText("Aliens will spawn in this game session");
+				}
+			} else if ("easter egg".equals(cmd)) {
+				ObjectManagerP1.spawnEEgg.start();
+				cmdResult.setText("Easter eggs enabled ;)");
 			} else {
 				cmdResult.setText("Invalid command " + cmd);
 			}

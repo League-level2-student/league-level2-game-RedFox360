@@ -18,6 +18,8 @@ public class ObjectManagerP2 implements ActionListener {
 	public static boolean needImage = true;
 	public static boolean gotImage = false;
 	public static boolean scoreSet = false;
+	public static boolean terminalSpawnAliens = true;
+	public static boolean spawnPowerups = true;
 	Car car;
 	int speed;
 	public static int score;
@@ -45,16 +47,21 @@ public class ObjectManagerP2 implements ActionListener {
 			loadImage("phase2background.jpg");
 		}
 	}
+
 	public void start() {
 		increaseSpeed.start();
 		alienSpawn.start();
 		powerupSpawn.start();
 		timeLimit.start();
 	}
+
 	void addPowerup() {
-		powerups.add(
-				new TimerPowerup(random.nextInt(AlienInvasion.WIDTH), random.nextInt(AlienInvasion.HEIGHT), 100, 100));
+		if (spawnPowerups) {
+			powerups.add(new TimerPowerup(random.nextInt(AlienInvasion.WIDTH), random.nextInt(AlienInvasion.HEIGHT),
+					100, 100));
+		}
 	}
+
 	void setScore(int x) {
 		scoreSet = true;
 		score = x;
@@ -76,6 +83,7 @@ public class ObjectManagerP2 implements ActionListener {
 	int getSpeed() {
 		return speed;
 	}
+
 	int getTime() {
 		return 100 - secondsUntilGameOver;
 	}
@@ -100,24 +108,22 @@ public class ObjectManagerP2 implements ActionListener {
 	}
 
 	public void update() {
-		for (Iterator<Alien2> iterator = aliens.iterator(); iterator.hasNext();) {
-			Alien2 alien = iterator.next();
+		for (Alien2 alien : aliens) {
 			alien.update(car);
 			if (alien.x < 0) {
 				alien.isActive = false;
 				aliensWhoGotAway += 1;
 			}
 		}
-		for (Iterator<Bullet> iterator = bullets.iterator(); iterator.hasNext();) {
-			Bullet projectile = iterator.next();
+		for (Bullet projectile : bullets) {
 			projectile.update();
 			if (projectile.y > AlienInvasion.WIDTH) {
 				projectile.isActive = false;
 				score += 1;
 			}
 		}
-		for (Iterator<TimerPowerup> iterator = powerups.iterator(); iterator.hasNext();) {
-			iterator.next().update();
+		for (TimerPowerup powerup : powerups) {
+			powerup.update();
 		}
 		car.update();
 		if (aliensWhoGotAway >= 20) {
@@ -141,8 +147,8 @@ public class ObjectManagerP2 implements ActionListener {
 			}
 		}
 		int counter;
-		for(counter = 1; counter <= 10; counter++) {
-			
+		for (counter = 1; counter <= 10; counter++) {
+
 		}
 		checkCollision();
 		purgeObjects();
@@ -170,7 +176,9 @@ public class ObjectManagerP2 implements ActionListener {
 	}
 
 	public void addAlien() {
-		aliens.add(new Alien2(0, random.nextInt(AlienInvasion.WIDTH), 50, 50, speed));
+		if (terminalSpawnAliens) {
+			aliens.add(new Alien2(0, random.nextInt(AlienInvasion.WIDTH), 50, 50, speed));
+		}
 	}
 
 	public void addBullet(Bullet b) {
@@ -178,16 +186,14 @@ public class ObjectManagerP2 implements ActionListener {
 	}
 
 	public void checkCollision() {
-		for (Iterator<Alien2> iterator = aliens.iterator(); iterator.hasNext();) {
-			Alien2 alien = iterator.next();
+		for (Alien2 alien : aliens) {
 			if (car.collisionBox.intersects(alien.collisionBox)) {
 				car.isActive = false;
 				GamePanel.endText = "Your car was hit by an alien.";
 				GamePanel.currentState = GamePanel.GAME3;
 				alien.isActive = false;
 			}
-			for (Iterator<Bullet> jterator = bullets.iterator(); jterator.hasNext();) {
-				Bullet projectile = jterator.next();
+			for (Bullet projectile : bullets) {
 				if (projectile.collisionBox.intersects(alien.collisionBox)) {
 					projectile.isActive = false;
 					alien.isActive = false;
@@ -196,8 +202,7 @@ public class ObjectManagerP2 implements ActionListener {
 				}
 			}
 		}
-		for (Iterator<TimerPowerup> iterator = powerups.iterator(); iterator.hasNext();) {
-			TimerPowerup powerup = iterator.next();
+		for (TimerPowerup powerup : powerups) {
 			if (powerup.collisionBox.intersects(car.collisionBox)) {
 				powerup.isActive = false;
 				GamePanel.halfTimer();
