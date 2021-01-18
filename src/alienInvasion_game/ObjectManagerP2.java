@@ -54,6 +54,12 @@ public class ObjectManagerP2 implements ActionListener {
 		powerupSpawn.start();
 		timeLimit.start();
 	}
+	public void stop() {
+		increaseSpeed.stop();
+		alienSpawn.stop();
+		powerupSpawn.stop();
+		timeLimit.stop();
+	}
 
 	void addPowerup() {
 		if (spawnPowerups) {
@@ -145,6 +151,7 @@ public class ObjectManagerP2 implements ActionListener {
 			} else {
 				GamePanel.endText = "You answered the question incorrectly";
 			}
+			aliensKilled = 0;
 		}
 		int counter;
 		for (counter = 1; counter <= 10; counter++) {

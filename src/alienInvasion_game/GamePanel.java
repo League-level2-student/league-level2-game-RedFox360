@@ -220,6 +220,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			currentState++;
 			timerLength = 500;
 			projectileTimer.setDelay(timerLength);
+			manager2.stop();
 			clearAll();
 		}
 	}
@@ -236,7 +237,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		}
 	}
 
-	public void clearAll() {
+	public static void clearAll() {
 		manager1.aliens.clear();
 		manager1.projectiles.clear();
 		manager1.asteroids.clear();

@@ -16,6 +16,7 @@ public class Projectile extends GameObject {
 		if (needImage) {
 		    loadImage ("bullet.png");
 		}
+		
 	}
 	public void update() {
 		super.update();
