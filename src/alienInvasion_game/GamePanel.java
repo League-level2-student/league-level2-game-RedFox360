@@ -8,6 +8,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
@@ -34,6 +36,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 	public static boolean lostGame = false;
 	public static String endText = "Thanks for playing Alien Invasion!";
 	public static boolean developerTools = false;
+	public static String filePath = System.getProperty("user.home") + "/Documents/alienInvasionScores.txt";
 	Font titleFont;
 	Font normalFont;
 	Font scoreFont;
@@ -65,7 +68,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			loadImage("UFO.png");
 		}
 	}
-
+	public static String getScoreHistory() {
+		return FileEvent.readLines(filePath).toString();
+	}
 	@Override
 	public void paintComponent(Graphics g) {
 		if (currentState == MENU) {
@@ -221,6 +226,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			timerLength = 500;
 			projectileTimer.setDelay(timerLength);
 			manager2.stop();
+			FileEvent.appendToFile(filePath, "" + manager1.getScore());
 			clearAll();
 		}
 	}

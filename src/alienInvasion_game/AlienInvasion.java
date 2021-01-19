@@ -9,6 +9,8 @@ import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -45,16 +47,16 @@ public class AlienInvasion extends JFrame implements ActionListener {
 	static boolean onMac = false;
 
 	public static void main(String[] args) {
-		if (System.getProperty("os.name").equals("Mac OS X")) {
-			onMac = true;
+		onMac = System.getProperty("os.name").toLowerCase().startsWith("mac os");
+		if (onMac) {
+			System.setProperty("apple.awt.applicationName", "Alien Invasion");
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
 		}
-		AlienInvasion gameClass = new AlienInvasion();
-		gameClass.addMenubar();
+		new AlienInvasion();
 	}
 
 	public AlienInvasion() {
-		this.setTitle("Alien Invasion");
+		super.setTitle("Alien Invasion");
 		panel = new GamePanel();
 		menubar = new JMenuBar();
 		fileMenu = new JMenu("File");
@@ -102,22 +104,23 @@ public class AlienInvasion extends JFrame implements ActionListener {
 		panel.setMinimumSize(new Dimension(WIDTH, HEIGHT));
 		preferencesMenuItem = new JMenuItem("Preferences");
 		this.registerForMacOSXEvents();
-		this.setVisible(true);
-		this.setSize(new Dimension(WIDTH, HEIGHT));
-		this.setResizable(false);
-		this.add(panel);
-		this.setJMenuBar(menubar);
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.addKeyListener(panel);
-		this.setLocationRelativeTo(null);
+		super.setVisible(true);
+		super.setSize(new Dimension(WIDTH, HEIGHT));
+		super.setResizable(false);
+		super.add(panel);
+		super.setJMenuBar(menubar);
+		super.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		super.addKeyListener(panel);
+		super.setLocationRelativeTo(null);
 		spawnPowerfulAliensCxb.setSelected(true);
 		spawnAsteroidsCxb.setSelected(true);
 		spawnPowerupsCxb.setSelected(true);
 		setShortcuts();
+		addMenubar();
 	}
 
 	public void registerForMacOSXEvents() {
-		if (System.getProperty("os.name").contains("Mac OS")) {
+		if (onMac) {
 			try {
 				// Generate and register the OSXAdapter, passing it a hash of all the methods we
 				// wish to
@@ -232,7 +235,9 @@ public class AlienInvasion extends JFrame implements ActionListener {
 		viewMenu.add(commandLineItem);
 		viewMenu.addSeparator();
 		viewMenu.add(fullScreenItem);
-		helpMenu.add(infoItem);
+		if (!onMac) {
+			helpMenu.add(infoItem);
+		}
 		helpMenu.add(githubItem);
 		helpMenu.addSeparator();
 		helpMenu.add(helpWithControlsItem);
@@ -323,7 +328,7 @@ public class AlienInvasion extends JFrame implements ActionListener {
 			WIDTH = Integer.parseInt(sizeX.getText());
 			HEIGHT = Integer.parseInt(sizeY.getText());
 			if (WIDTH <= width && HEIGHT <= HEIGHT) {
-				this.setSize(WIDTH, HEIGHT);
+				super.setSize(WIDTH, HEIGHT);
 			} else {
 				JOptionPane.showMessageDialog(preferences,
 						"The height or width written above is larger than your screen size.");
@@ -347,7 +352,7 @@ public class AlienInvasion extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent arg0) {
 		if (arg0.getSource() == exitMenuItem) {
 			if (onMac) {
-				this.dispose();
+				super.dispose();
 			} else {
 				System.exit(0);
 			}
@@ -363,7 +368,7 @@ public class AlienInvasion extends JFrame implements ActionListener {
 			WIDTH = 800;
 			HEIGHT = 800;
 			GamePanel.setAlienSpawnRate(1);
-			this.setSize(WIDTH, HEIGHT);
+			super.setSize(WIDTH, HEIGHT);
 			spawnPowerfulAliensCxb.setSelected(true);
 			spawnAsteroidsCxb.setSelected(true);
 			spawnPowerupsCxb.setSelected(true);
@@ -379,8 +384,7 @@ public class AlienInvasion extends JFrame implements ActionListener {
 							+ "DEVELOPER CONTROLS: Press the bracket keys [ ] to toggle between Game Phases    Press the end key to go to the end question");
 		}
 		if (arg0.getSource() == infoItem) {
-			JOptionPane.showMessageDialog(this,
-					"This Java project is designed on/for macOS. You might experience minor issues when playing on a different OS.\nDeveloped by Sameer Prakash 2020-21");
+			about();
 		}
 		if (arg0.getSource() == githubItem) {
 			writeTextToClipboard("https://github.com/League-level2-student/league-level2-game-RedFox360?");
@@ -409,6 +413,11 @@ public class AlienInvasion extends JFrame implements ActionListener {
 		}
 		if (arg0.getSource() == newGameItem) {
 			GamePanel.currentState = GamePanel.MENU;
+			GamePanel.clearAll();
+			GamePanel.rocketShip = new Rocketship(400, 700, 60, 60, 20);
+			GamePanel.car = new Car(700, 400, 100, 100);
+			GamePanel.manager1 = new ObjectManagerP1(GamePanel.rocketShip);
+			GamePanel.manager2 = new ObjectManagerP2(GamePanel.car);
 		}
 		if (arg0.getSource() == spawnPowerfulAliensCxb || arg0.getSource() == spawnAsteroidsCxb) {
 			isSaved = false;
@@ -436,7 +445,7 @@ public class AlienInvasion extends JFrame implements ActionListener {
 				WIDTH = screenWidth;
 				HEIGHT = screenHeight;
 			}
-			this.setSize(WIDTH, HEIGHT);
+			super.setSize(WIDTH, HEIGHT);
 		}
 		if (arg0.getSource() == writeStatsToFItem) {
 			String content;
