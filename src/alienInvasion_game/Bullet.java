@@ -7,21 +7,37 @@ import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 
 public class Bullet extends GameObject {
-	public static BufferedImage image;
-	public static boolean needImage = true;
-	public static boolean gotImage = false;
+	public BufferedImage image;
+	public boolean needImage = true;
+	public boolean gotImage = false;
+	public char direction;
 
-	public Bullet(int x, int y, int width, int height) {
+	public Bullet(int x, int y, int width, int height, char direction) {
 		super(x, y, width, height);
 		this.speed = 10;
+		this.direction = direction;
 		if (needImage) {
-			loadImage("car_bullet.png");
+			if (this.direction == 's') {
+				loadImage("car_bullet.png");
+			}
+			else if (this.direction == 'u') {
+				loadImage("up_bullet.png");
+			}
+			else if (this.direction == 'd') {
+				loadImage("powerful_alien_bullet.png");
+			}
 		}
 	}
 
 	public void update() {
 		super.update();
-		x -= speed;
+		if (direction == 's') {
+			x -= speed;
+		} else if (direction == 'u') {
+			y -= speed;
+		} else if (direction == 'd') {
+			y += speed;
+		}
 	}
 
 	public void draw(Graphics g) {

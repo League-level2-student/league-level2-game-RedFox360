@@ -123,9 +123,8 @@ public class ObjectManagerP2 implements ActionListener {
 		}
 		for (Bullet projectile : bullets) {
 			projectile.update();
-			if (projectile.y > AlienInvasion.WIDTH) {
+			if (projectile.x < 0 | projectile.y < 0 | projectile.x > AlienInvasion.WIDTH | projectile.y > AlienInvasion.HEIGHT) {
 				projectile.isActive = false;
-				score += 1;
 			}
 		}
 		for (TimerPowerup powerup : powerups) {
@@ -212,6 +211,7 @@ public class ObjectManagerP2 implements ActionListener {
 		for (TimerPowerup powerup : powerups) {
 			if (powerup.collisionBox.intersects(car.collisionBox)) {
 				powerup.isActive = false;
+				car.canShootUpAndDown = true;
 				GamePanel.halfTimer();
 			}
 		}

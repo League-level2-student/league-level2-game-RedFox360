@@ -223,6 +223,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 		}
 		if (car.isActive == false) {
 			currentState++;
+			car.canShootUpAndDown = false;
 			timerLength = 500;
 			projectileTimer.setDelay(timerLength);
 			manager2.stop();
@@ -337,7 +338,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 			if (currentState == GAME) {
 				manager1.addProjectile(rocketShip.getProjectile());
 			} else if (currentState == GAME2) {
-				manager2.addBullet(car.getBullet());
+				manager2.addBullet(car.getBullet('s'));
 			} else if (currentState == MENU) {
 				JOptionPane.showMessageDialog(null,
 						"GOAL: Battle aliens in space and on Earth, and when you finish, answer a riddle to win the game.\n"
@@ -346,6 +347,12 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 								+ "View code on Github: https://github.com/League-level2-student/league-level2-game-RedFox360");
 			}
 			useProjectile = false;
+		}
+		if (arg0.getKeyChar() == 'e' && currentState == GAME2) {
+			manager2.addBullet(car.getBullet('d'));
+		}
+		if (arg0.getKeyChar() == 'q' && currentState == GAME2) {
+			manager2.addBullet(car.getBullet('u'));
 		}
 	}
 

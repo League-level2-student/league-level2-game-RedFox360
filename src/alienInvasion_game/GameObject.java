@@ -3,10 +3,7 @@ package alienInvasion_game;
 import java.awt.Rectangle;
 
 public abstract class GameObject {
-	int x;
-	int y;
-	int width;
-	int height;
+	int x, y, width, height;
 	int speed = 0;
 	boolean isActive = true;
 	Rectangle collisionBox;

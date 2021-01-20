@@ -60,7 +60,7 @@ package alienInvasion_game;
 import java.lang.reflect.*;
  
  
-public class OSXAdapter implements InvocationHandler {
+public class MacOSAdapter implements InvocationHandler {
  
     protected Object targetObject;
     protected Method targetMethod;
@@ -71,7 +71,7 @@ public class OSXAdapter implements InvocationHandler {
     // Pass this method an Object and Method equipped to perform application shutdown logic
     // The method passed should return a boolean stating whether or not the quit should occur
     public static void setQuitHandler(Object target, Method quitHandler) {
-        setHandler(new OSXAdapter("handleQuit", target, quitHandler));
+        setHandler(new MacOSAdapter("handleQuit", target, quitHandler));
     }
     
     // Pass this method an Object and Method equipped to display application info
@@ -79,7 +79,7 @@ public class OSXAdapter implements InvocationHandler {
     public static void setAboutHandler(Object target, Method aboutHandler) {
         boolean enableAboutMenu = (target != null && aboutHandler != null);
         if (enableAboutMenu) {
-            setHandler(new OSXAdapter("handleAbout", target, aboutHandler));
+            setHandler(new MacOSAdapter("handleAbout", target, aboutHandler));
         }
         // If we're setting a handler, enable the About menu item by calling
         // com.apple.eawt.Application reflectively
@@ -97,7 +97,7 @@ public class OSXAdapter implements InvocationHandler {
     public static void setPreferencesHandler(Object target, Method prefsHandler) {
         boolean enablePrefsMenu = (target != null && prefsHandler != null);
         if (enablePrefsMenu) {
-            setHandler(new OSXAdapter("handlePreferences", target, prefsHandler));
+            setHandler(new MacOSAdapter("handlePreferences", target, prefsHandler));
         }
         // If we're setting a handler, enable the Preferences menu item by calling
         // com.apple.eawt.Application reflectively
@@ -114,7 +114,7 @@ public class OSXAdapter implements InvocationHandler {
     // Documents are registered with the Finder via the CFBundleDocumentTypes dictionary in the 
     // application bundle's Info.plist
     public static void setFileHandler(Object target, Method fileHandler) {
-        setHandler(new OSXAdapter("handleOpenFile", target, fileHandler) {
+        setHandler(new MacOSAdapter("handleOpenFile", target, fileHandler) {
             // Override OSXAdapter.callTarget to send information on the
             // file to be opened
             public boolean callTarget(Object appleEvent) {
@@ -133,7 +133,7 @@ public class OSXAdapter implements InvocationHandler {
     }
     
     // setHandler creates a Proxy object from the passed OSXAdapter and adds it as an ApplicationListener
-    public static void setHandler(OSXAdapter adapter) {
+    public static void setHandler(MacOSAdapter adapter) {
         try {
             Class applicationClass = Class.forName("com.apple.eawt.Application");
             if (macOSXApplication == null) {
@@ -142,7 +142,7 @@ public class OSXAdapter implements InvocationHandler {
             Class applicationListenerClass = Class.forName("com.apple.eawt.ApplicationListener");
             Method addListenerMethod = applicationClass.getDeclaredMethod("addApplicationListener", new Class[] { applicationListenerClass });
             // Create a proxy object around this handler that can be reflectively added as an Apple ApplicationListener
-            Object osxAdapterProxy = Proxy.newProxyInstance(OSXAdapter.class.getClassLoader(), new Class[] { applicationListenerClass }, adapter);
+            Object osxAdapterProxy = Proxy.newProxyInstance(MacOSAdapter.class.getClassLoader(), new Class[] { applicationListenerClass }, adapter);
             addListenerMethod.invoke(macOSXApplication, new Object[] { osxAdapterProxy });
         } catch (ClassNotFoundException cnfe) {
             System.err.println("This version of Mac OS X does not support the Apple EAWT.  ApplicationEvent handling has been disabled (" + cnfe + ")");
@@ -154,7 +154,7 @@ public class OSXAdapter implements InvocationHandler {
  
     // Each OSXAdapter has the name of the EAWT method it intends to listen for (handleAbout, for example),
     // the Object that will ultimately perform the task, and the Method to be called on that Object
-    protected OSXAdapter(String proxySignature, Object target, Method handler) {
+    protected MacOSAdapter(String proxySignature, Object target, Method handler) {
         this.proxySignature = proxySignature;
         this.targetObject = target;
         this.targetMethod = handler;

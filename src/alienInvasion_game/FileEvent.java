@@ -3,6 +3,7 @@ package alienInvasion_game;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -36,18 +37,18 @@ public class FileEvent {
 
 	public static ArrayList<String> readLines(String fileName) {
 		ArrayList<String> toReturn = new ArrayList<String>();
-		FileReader fw;
-		File file;
-		try (BufferedReader br = new BufferedReader(fw = new FileReader(file = new File(fileName)))) {
-			while (true) {
-				try {
-					toReturn.add(br.readLine());
-				} catch (Exception e) {
-					break;
-				}
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(fileName));
+			String line = br.readLine();
+			while(line != null){
+				toReturn.add(line);
+				line = br.readLine();
 			}
+			
+			br.close();
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return toReturn;

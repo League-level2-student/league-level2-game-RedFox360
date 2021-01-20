@@ -10,6 +10,7 @@ public class Car extends GameObject {
 	public static BufferedImage image;
 	public static boolean needImage = true;
 	public static boolean gotImage = false;
+	public boolean canShootUpAndDown = false;
 
 	public Car(int x, int y, int width, int height) {
 		super(x, y, width, height);
@@ -44,8 +45,12 @@ public class Car extends GameObject {
 		x += speed;
 	}
 
-	public Bullet getBullet() {
-		return new Bullet(x + width / 2, y + 35, 80, 20);
+	public Bullet getBullet(char dir) {
+		if ((dir == 'u' || dir == 'd') && canShootUpAndDown) {
+			return new Bullet(x + width / 2, y + 35, 20, 80, dir);
+		} else {
+			return new Bullet(x + width / 2, y + 35, 80, 20, 's');
+		}
 	}
 
 	void loadImage(String imageFile) {

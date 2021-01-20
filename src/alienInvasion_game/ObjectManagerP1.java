@@ -1,5 +1,6 @@
 package alienInvasion_game;
 
+import java.applet.AudioClip;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
@@ -13,6 +14,7 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.swing.JApplet;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
@@ -25,6 +27,7 @@ public class ObjectManagerP1 implements ActionListener {
 	public static boolean easterEggSpawned = false;
 	public static boolean terminalSpawnAliens = true;
 	public static boolean spawnPowerups = true;
+	public static String filePath = System.getProperty("user.home") + "/Documents/alienInvasionScores.txt";
 	public static int score = 0;
 	int speed = 1;
 	int aliensWhoFellBackToEarth = 0;
@@ -288,19 +291,18 @@ public class ObjectManagerP1 implements ActionListener {
 					if (projectile.collisionBox.intersects(asteroid.collisionBox)) {
 						projectile.isActive = false;
 					}
+					if (asteroid.collisionBox.intersects(alien.collisionBox)) {
+						alien.isActive = false;
+					}
+					if (asteroid.collisionBox.intersects(rocketShip.collisionBox)) {
+						rocketShip.isActive = false;
+						FileEvent.appendToFile(filePath, "" + score);
+						GamePanel.endText = "Your rocket was hit by an asteroid";
+						FileEvent.appendToFile(filePath, "" + score);
+						GamePanel.currentState = GamePanel.END - 1;
+					}
 				}
 
-			}
-			for (Asteroid asteroid : asteroids) {
-				if (asteroid.collisionBox.intersects(alien.collisionBox)) {
-					alien.isActive = false;
-				}
-				if (asteroid.collisionBox.intersects(rocketShip.collisionBox)) {
-					rocketShip.isActive = false;
-
-					GamePanel.endText = "Your rocket was hit by an asteroid";
-					GamePanel.currentState = GamePanel.END - 1;
-				}
 			}
 		}
 		for (TimerPowerup powerup : powerups) {
@@ -331,7 +333,7 @@ public class ObjectManagerP1 implements ActionListener {
 		for (PowerfulAlienBullet bullet : powerfulAliensBullets) {
 			if (bullet.collisionBox.intersects(rocketShip.collisionBox)) {
 				rocketShip.isActive = false;
-
+				
 			}
 			for (Projectile projectile : projectiles) {
 				if (bullet.collisionBox.intersects(projectile.collisionBox)) {
@@ -346,7 +348,9 @@ public class ObjectManagerP1 implements ActionListener {
 		}
 		if (easterEggSpawned) {
 			if (easterEgg.collisionBox.intersects(rocketShip.collisionBox)) {
-
+				playSound("smb_stage_clear.wav");
+				rocketShip.isActive = false;
+				GamePanel.currentState = GamePanel.WON;
 			}
 		}
 	}
@@ -394,5 +398,9 @@ public class ObjectManagerP1 implements ActionListener {
 		} catch (Exception exc) {
 			exc.printStackTrace(System.out);
 		}
+	}
+	private void playSound(String fileName) {
+	     AudioClip sound = JApplet.newAudioClip(getClass().getResource(fileName));
+	     sound.play();
 	}
 }

@@ -9,20 +9,8 @@ import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
+import javax.swing.*;
 
 public class AlienInvasion extends JFrame implements ActionListener {
 
@@ -33,10 +21,11 @@ public class AlienInvasion extends JFrame implements ActionListener {
 	private JMenu fileMenu, viewMenu, helpMenu, currentLevelMenu, developerGameStateMenu;
 	private JMenuItem exitMenuItem, preferencesMenuItem, hideStatsItem, helpWithControlsItem, infoItem, githubItem,
 			newGameItem, pauseGameItem, easyMenuItem, mediumMenuItem, hardMenuItem, toggleDevToolsItem, fullScreenItem,
-			writeStatsToFItem, openDevPaneItem, commandLineItem;
+			writeStatsToFItem, openDevPaneItem, commandLineItem, getFileScores, clearScoreHistory;
 	private JMenuItem[] devStates = new JMenuItem[6];
 	private JCheckBox spawnPowerfulAliensCxb, spawnAsteroidsCxb, spawnPowerupsCxb;
 	boolean isSaved = false;
+	public static String filePath = System.getProperty("user.home") + "/Documents/alienInvasionScores.txt";
 	public static int WIDTH = 800;
 	public static int HEIGHT = 800;
 	private JTextField sizeX, sizeY, cmdtxtfld;
@@ -49,7 +38,6 @@ public class AlienInvasion extends JFrame implements ActionListener {
 	public static void main(String[] args) {
 		onMac = System.getProperty("os.name").toLowerCase().startsWith("mac os");
 		if (onMac) {
-			System.setProperty("apple.awt.applicationName", "Alien Invasion");
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
 		}
 		new AlienInvasion();
@@ -68,7 +56,9 @@ public class AlienInvasion extends JFrame implements ActionListener {
 		enterCmdB = new JButton("Enter Command");
 		backDev = new JButton("Back [");
 		forwDev = new JButton("Forward ]");
+		getFileScores = new JMenuItem("Score History");
 		endGameDev = new JButton("End Game (end)");
+		clearScoreHistory = new JMenuItem("Clear Score History");
 		devPane = new JFrame("Developer Panel");
 		infoItem = new JMenuItem("Project Info");
 		if (onMac) {
@@ -125,9 +115,9 @@ public class AlienInvasion extends JFrame implements ActionListener {
 				// Generate and register the OSXAdapter, passing it a hash of all the methods we
 				// wish to
 				// use as delegates for various com.apple.eawt.ApplicationListener methods
-				OSXAdapter.setQuitHandler(this, getClass().getDeclaredMethod("quit", (Class[]) null));
-				OSXAdapter.setAboutHandler(this, getClass().getDeclaredMethod("about", (Class[]) null));
-				OSXAdapter.setPreferencesHandler(this, getClass().getDeclaredMethod("openPreferences", (Class[]) null));
+				MacOSAdapter.setQuitHandler(this, getClass().getDeclaredMethod("quit", (Class[]) null));
+				MacOSAdapter.setAboutHandler(this, getClass().getDeclaredMethod("about", (Class[]) null));
+				MacOSAdapter.setPreferencesHandler(this, getClass().getDeclaredMethod("openPreferences", (Class[]) null));
 			} catch (Exception e) {
 				System.err.println("Error while loading the OSXAdapter:");
 				e.printStackTrace();
@@ -174,6 +164,7 @@ public class AlienInvasion extends JFrame implements ActionListener {
 					.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, commandKey | KeyEvent.SHIFT_MASK));
 			exitMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, commandKey));
 			commandLineItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, commandKey | KeyEvent.SHIFT_MASK));
+			getFileScores.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, commandKey | KeyEvent.SHIFT_MASK));
 			int counter = 49;
 			for (int i = 0; i < devStates.length; i++) {
 				devStates[i].setAccelerator(
@@ -196,6 +187,7 @@ public class AlienInvasion extends JFrame implements ActionListener {
 
 			commandLineItem
 					.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, KeyEvent.CTRL_MASK | KeyEvent.ALT_MASK));
+			getFileScores.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, KeyEvent.VK_CONTROL));
 			int counter = 49;
 			for (int i = 0; i < devStates.length; i++) {
 				devStates[i].setAccelerator(KeyStroke.getKeyStroke(counter, KeyEvent.CTRL_MASK | KeyEvent.SHIFT_MASK));
@@ -228,10 +220,13 @@ public class AlienInvasion extends JFrame implements ActionListener {
 		fileMenu.add(toggleDevToolsItem);
 		fileMenu.addSeparator();
 		fileMenu.add(writeStatsToFItem);
+		fileMenu.add(getFileScores);
+		fileMenu.addSeparator();
 		fileMenu.add(exitMenuItem);
 		viewMenu.add(hideStatsItem);
 		viewMenu.add(pauseGameItem);
 		viewMenu.addSeparator();
+		viewMenu.add(clearScoreHistory);
 		viewMenu.add(commandLineItem);
 		viewMenu.addSeparator();
 		viewMenu.add(fullScreenItem);
@@ -267,6 +262,8 @@ public class AlienInvasion extends JFrame implements ActionListener {
 		writeStatsToFItem.addActionListener(this);
 		openDevPaneItem.addActionListener(this);
 		commandLineItem.addActionListener(this);
+		getFileScores.addActionListener(this);
+		clearScoreHistory.addActionListener(this);
 	}
 
 	void openPreferences() {
@@ -379,7 +376,7 @@ public class AlienInvasion extends JFrame implements ActionListener {
 		}
 		if (arg0.getSource() == helpWithControlsItem) {
 			JOptionPane.showMessageDialog(this,
-					"GAME CONTROLS: Press the arrow keys or use WASD to move around    Use space to shoot projectiles at aliens.\n"
+					"GAME CONTROLS: Press the arrow keys or use WASD to move around    Use space to shoot projectiles at aliens. In Game Phase 2, press q and e to shoot up and down (respectively).\n"
 							+ "OTHER CONTROLS: Press escape to pause the game    Press F3 to hide the menus.\n"
 							+ "DEVELOPER CONTROLS: Press the bracket keys [ ] to toggle between Game Phases    Press the end key to go to the end question");
 		}
@@ -482,7 +479,7 @@ public class AlienInvasion extends JFrame implements ActionListener {
 		}
 		if (arg0.getSource() == enterCmdB) {
 			cmd = cmdtxtfld.getText();
-			if ("toggle aliens -spawn".equals(cmd)) {
+			if (cmd.equals("toggle aliens spawn")) {
 				if (ObjectManagerP1.terminalSpawnAliens || ObjectManagerP2.terminalSpawnAliens) {
 					ObjectManagerP1.terminalSpawnAliens = false;
 					ObjectManagerP2.terminalSpawnAliens = false;
@@ -492,9 +489,9 @@ public class AlienInvasion extends JFrame implements ActionListener {
 					ObjectManagerP2.terminalSpawnAliens = true;
 					cmdResult.setText("Aliens will spawn in this game session");
 				}
-			} else if ("credits".equals(cmd)) {
+			} else if (cmd.equals("credits")) {
 				cmdResult.setText("Testers: Ishan Khandekar and Anika Prakash; Teacher: Cody from the LEAGUE");
-			} else if ("easter egg".equals(cmd)) {
+			} else if (cmd.equals("easter egg")) {
 				ObjectManagerP1.spawnEEgg.start();
 				cmdResult.setText("Easter eggs enabled ;)");
 			} else {
@@ -522,6 +519,12 @@ public class AlienInvasion extends JFrame implements ActionListener {
 		}
 		if (arg0.getSource() == devStates[5]) {
 			GamePanel.currentState = GamePanel.WON;
+		}
+		if (arg0.getSource() == getFileScores) {
+			JOptionPane.showMessageDialog(null, "Score History: " + FileEvent.readLines(filePath).toString().replace("[", "").replace("]", ""));
+		}
+		if (arg0.getSource() == clearScoreHistory) {
+			FileEvent.writeToFile(filePath, "");
 		}
 	}
 
