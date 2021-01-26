@@ -36,8 +36,9 @@ public class AlienInvasion extends JFrame implements ActionListener {
 	static boolean onMac = false;
 
 	public static void main(String[] args) {
-		onMac = System.getProperty("os.name").toLowerCase().startsWith("mac os");
-		if (onMac) {
+		if (System.getProperty("os.name").startsWith("Mac OS")) {
+			onMac = true;
+			System.setProperty("apple.awt.application.name", "Alien Invasion");
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
 		}
 		new AlienInvasion();
@@ -93,7 +94,6 @@ public class AlienInvasion extends JFrame implements ActionListener {
 		hideStatsItem = new JMenuItem("Hide/Show Stats");
 		panel.setMinimumSize(new Dimension(WIDTH, HEIGHT));
 		preferencesMenuItem = new JMenuItem("Preferences");
-		this.registerForMacOSXEvents();
 		super.setVisible(true);
 		super.setSize(new Dimension(WIDTH, HEIGHT));
 		super.setResizable(false);
@@ -107,26 +107,6 @@ public class AlienInvasion extends JFrame implements ActionListener {
 		spawnPowerupsCxb.setSelected(true);
 		setShortcuts();
 		addMenubar();
-	}
-
-	public void registerForMacOSXEvents() {
-		if (onMac) {
-			try {
-				// Generate and register the OSXAdapter, passing it a hash of all the methods we
-				// wish to
-				// use as delegates for various com.apple.eawt.ApplicationListener methods
-				MacOSAdapter.setQuitHandler(this, getClass().getDeclaredMethod("quit", (Class[]) null));
-				MacOSAdapter.setAboutHandler(this, getClass().getDeclaredMethod("about", (Class[]) null));
-				MacOSAdapter.setPreferencesHandler(this, getClass().getDeclaredMethod("openPreferences", (Class[]) null));
-			} catch (Exception e) {
-				System.err.println("Error while loading the OSXAdapter:");
-				e.printStackTrace();
-			}
-		}
-	}
-
-	public void quit() {
-		System.exit(0);
 	}
 
 	public void about() {
@@ -213,9 +193,7 @@ public class AlienInvasion extends JFrame implements ActionListener {
 		fileMenu.add(currentLevelMenu);
 		fileMenu.addSeparator();
 		fileMenu.add(newGameItem);
-		if (!onMac) {
-			fileMenu.add(preferencesMenuItem);
-		}
+		fileMenu.add(preferencesMenuItem);
 		fileMenu.addSeparator();
 		fileMenu.add(toggleDevToolsItem);
 		fileMenu.addSeparator();
@@ -230,9 +208,7 @@ public class AlienInvasion extends JFrame implements ActionListener {
 		viewMenu.add(commandLineItem);
 		viewMenu.addSeparator();
 		viewMenu.add(fullScreenItem);
-		if (!onMac) {
-			helpMenu.add(infoItem);
-		}
+		helpMenu.add(infoItem);
 		helpMenu.add(githubItem);
 		helpMenu.addSeparator();
 		helpMenu.add(helpWithControlsItem);
